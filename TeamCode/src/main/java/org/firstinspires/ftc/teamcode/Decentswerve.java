@@ -88,6 +88,7 @@ public class Decentswerve extends LinearOpMode {
     double y1 = 0;
     public static double INFP = 0.5;
     public static double OTDP = 0.5;
+    public static double DROPP = 0.5;
 
 
 
@@ -128,12 +129,13 @@ public class Decentswerve extends LinearOpMode {
 
 
         OTD.setPosition(0.35);
-        DROP.setPosition(0.5);
+        DROP.setPosition(DROPP);
 
 
         waitForStart();
 
         while (opModeIsActive()) {
+
 
             y1 = gamepad1.right_stick_y;
             x1 = gamepad1.left_stick_x*179.9999999;
@@ -141,7 +143,7 @@ public class Decentswerve extends LinearOpMode {
             INFP = Range.clip(INFP,0.1,0.9);
 
             if (gamepad1.x){
-                y1 = gamepad1.right_stick_y;
+                y1 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
 
                 BRTreference = -45;
@@ -155,7 +157,7 @@ public class Decentswerve extends LinearOpMode {
                 FLD.setPower(y1*-1);
             }
             else if (gamepad1.dpad_right){
-                y1 = gamepad1.right_stick_y;
+                y1 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
 
                 BRTreference = 18;
@@ -169,7 +171,7 @@ public class Decentswerve extends LinearOpMode {
                 FLD.setPower(y1);
             }
             else if (gamepad1.dpad_left){
-                y1 = gamepad1.right_stick_y;
+                y1 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
 
                 BRTreference = -18;
@@ -183,7 +185,7 @@ public class Decentswerve extends LinearOpMode {
                 FLD.setPower(y1);
             }
             else {
-                y1 = gamepad1.right_stick_y;
+                y1 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
 
                 BLTreference = x1;
@@ -210,7 +212,7 @@ public class Decentswerve extends LinearOpMode {
                 OTDP = 0;
             }
             if (!gamepad1.y){
-                    OTDP = 0.35;
+                    OTDP = 0.3;
             }
             OTD.setPosition(OTDP);
 
@@ -220,7 +222,7 @@ public class Decentswerve extends LinearOpMode {
             double OTEV = 0;
             OTEV = gamepad1.right_trigger*-0.75;
             if (gamepad1.right_bumper){
-                OTEV = -1;
+                OTEV *= -0.5;
             }
             OTE.setPower(OTEV);
 
