@@ -13,11 +13,10 @@ import com.qualcomm.robotcore.hardware.I2cDevice;
 
 
 
-@TeleOp(name="swervy", group="Linear Opmode")
-public class swervy extends LinearOpMode {
+@TeleOp(name="Encodertuning", group="Linear Opmode")
+public class Encodertuning extends LinearOpMode {
 
 
-    private CRServo BLT;
     private AnalogInput BLE;
     private AnalogInput BRE;
     private AnalogInput FLE;
@@ -36,8 +35,6 @@ public class swervy extends LinearOpMode {
         FLE = hardwareMap.get(AnalogInput.class, "FLE");
         FRE = hardwareMap.get(AnalogInput.class, "FRE");
 
-        BLT = hardwareMap.get(CRServo.class,"BLT");
-
 
         waitForStart();
 
@@ -53,37 +50,7 @@ public class swervy extends LinearOpMode {
             BRP = BRE.getVoltage() * 74.16;
             FLP = FLE.getVoltage() * 74.16;
             FRP = FRE.getVoltage() * 74.16;
-            BLT.setPower(1);
 
-            BLP = BLP%360 - (BLP%360 > 180 ? 360 : 0);
-            BRP = BRP%360 - (BRP%360 > 180 ? 360 : 0);
-            FLP = FLP%360 - (FLP%360 > 180 ? 360 : 0);
-            FRP = FRP%360 - (FRP%360 > 180 ? 360 : 0);
-
-            if(BLP <= -180) {
-                BLP += 360;
-            }
-            if(BLP > 180) {
-                BLP -= 360;
-            }
-            if(BRP <= -180) {
-                BRP += 360;
-            }
-            if(BRP > 180) {
-                BRP -= 360;
-            }
-            if(FLP <= -180) {
-                FLP += 360;
-            }
-            if(FLP > 180) {
-                FLP -= 360;
-            }
-            if(FRP <= -180) {
-                FRP += 360;
-            }
-            if(FRP > 180) {
-                FRP -= 360;
-            }
 
             telemetry.addData("BLP",BLP);
             telemetry.addData("BRP",BRP);

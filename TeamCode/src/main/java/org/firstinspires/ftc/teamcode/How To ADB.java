@@ -9,4 +9,4 @@
 //To kill connection do: adb kill-server
 
 
-
+//https://robotics.stackexchange.com/questions/167/what-are-good-strategies-for-tuning-pid-loops
