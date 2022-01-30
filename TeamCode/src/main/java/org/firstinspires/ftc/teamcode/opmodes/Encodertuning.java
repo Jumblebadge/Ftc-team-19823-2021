@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -51,11 +51,15 @@ public class Encodertuning extends LinearOpMode {
             FLP = FLE.getVoltage() * 74.16;
             FRP = FRE.getVoltage() * 74.16;
 
+            double atan = Math.atan2(-x1,-y1);
+            atan *= 57.2958;
+
 
             telemetry.addData("BLP",BLP);
             telemetry.addData("BRP",BRP);
             telemetry.addData("FLP",FLP);
             telemetry.addData("FRP",FRP);
+            telemetry.addData("ATAN",atan);
             telemetry.update();
         }}
     }

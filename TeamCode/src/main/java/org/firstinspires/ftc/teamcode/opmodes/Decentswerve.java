@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -85,6 +85,7 @@ public class Decentswerve extends LinearOpMode {
     double FRP = 0;
 
     double x1 = 0;
+    double y2 = 0;
     double y1 = 0;
     public static double INFP = 0.5;
     public static double OTDP = 0.5;
@@ -137,13 +138,13 @@ public class Decentswerve extends LinearOpMode {
         while (opModeIsActive()) {
 
 
-            y1 = gamepad1.right_stick_y;
+            y2 = gamepad1.right_stick_y;
             x1 = gamepad1.left_stick_x*179.9999999;
 
-            INFP = Range.clip(INFP,0.1,0.9);
+            INFP = Range.clip(INFP,0.1,1);
 
             if (gamepad1.x){
-                y1 = -gamepad1.right_stick_y;
+                y2 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
 
                 BRTreference = -45;
@@ -151,13 +152,13 @@ public class Decentswerve extends LinearOpMode {
                 FRTreference = 45;
                 FLTreference = -45;
 
-                BLD.setPower(y1*-1);
-                BRD.setPower(y1);
-                FRD.setPower(y1);
-                FLD.setPower(y1*-1);
+                BLD.setPower(y2*-1);
+                BRD.setPower(y2);
+                FRD.setPower(y2);
+                FLD.setPower(y2*-1);
             }
             else if (gamepad1.dpad_right){
-                y1 = -gamepad1.right_stick_y;
+                y2 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
 
                 BRTreference = 18;
@@ -165,13 +166,13 @@ public class Decentswerve extends LinearOpMode {
                 FRTreference = -35;
                 FLTreference = -35;
 
-                BLD.setPower(y1);
-                BRD.setPower(y1);
-                FRD.setPower(y1);
-                FLD.setPower(y1);
+                BLD.setPower(y2);
+                BRD.setPower(y2);
+                FRD.setPower(y2);
+                FLD.setPower(y2);
             }
             else if (gamepad1.dpad_left){
-                y1 = -gamepad1.right_stick_y;
+                y2 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
 
                 BRTreference = -18;
@@ -179,28 +180,31 @@ public class Decentswerve extends LinearOpMode {
                 FRTreference = 35;
                 FLTreference = 35;
 
-                BLD.setPower(y1);
-                BRD.setPower(y1);
-                FRD.setPower(y1);
-                FLD.setPower(y1);
+                BLD.setPower(y2);
+                BRD.setPower(y2);
+                FRD.setPower(y2);
+                FLD.setPower(y2);
             }
             else {
-                y1 = -gamepad1.right_stick_y;
+                y2 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x*179.9999999;
+                y1 = gamepad1.left_stick_y;
+                double atan = Math.atan2(-x1,-y1);
+                atan *= 57.2958;
 
-                BLTreference = x1;
-                BRTreference = x1;
-                FLTreference = x1;
-                FRTreference = x1;
+                BLTreference = atan;
+                BRTreference = atan;
+                FLTreference = atan;
+                FRTreference = atan;
 
-                BLD.setPower(y1);
-                BRD.setPower(y1);
-                FRD.setPower(y1);
-                FLD.setPower(y1);
+                BLD.setPower(y2);
+                BRD.setPower(y2);
+                FRD.setPower(y2);
+                FLD.setPower(y2);
             }
 
             if (gamepad1.a){
-                INFP = 0.9;
+                INFP = 0.95;
             }
             if (!gamepad1.a) {
                 if (INFP != 0.1){
@@ -352,6 +356,7 @@ public class Decentswerve extends LinearOpMode {
             telemetry.addData("OTE",OTE.getCurrentPosition());
             telemetry.addData("OTEV",OTEV);
             telemetry.addData("G",gamepad1.right_trigger);
+            //telemetry.addData("COLOR TEST",fontcolor="red");
             telemetry.update();
         }
     }
