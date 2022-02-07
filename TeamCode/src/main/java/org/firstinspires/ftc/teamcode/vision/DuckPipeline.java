@@ -18,7 +18,7 @@ public class DuckPipeline extends OpenCvPipeline {
 
     public DuckPipeline(Telemetry t) {telemetry = t;}
 
-    public enum DuckPosition
+    public enum DuckPositions
     {
         LEFT,
         CENTER,
@@ -60,7 +60,7 @@ public class DuckPipeline extends OpenCvPipeline {
     Mat Cb = new Mat();
     int avg1, avg2, avg3;
 
-    private volatile DuckPosition position = DuckPosition.LEFT;
+    private volatile DuckPositions position = DuckPositions.LEFT;
 
     void inputToCb(Mat input)
     {
@@ -117,41 +117,41 @@ public class DuckPipeline extends OpenCvPipeline {
 
         if(min == avg1) // Was it from region 1?
         {
-            position = DuckPosition.LEFT; // Record our analysis
-
+            position = DuckPositions.LEFT; // Record our analysis
+            /**
             Imgproc.rectangle(
                     input, // Buffer to draw on
                     region1_pointA, // First point which defines the rectangle
                     region1_pointB, // Second point which defines the rectangle
                     GREEN, // The color the rectangle is drawn in
                     -1); // Negative thickness means solid fill
-
+**/
         }
         else if(min == avg2) // Was it from region 2?
         {
-            position = DuckPosition.CENTER; // Record our analysis
+            position = DuckPositions.CENTER; // Record our analysis
 
-
+/**
             Imgproc.rectangle(
                     input, // Buffer to draw on
                     region2_pointA, // First point which defines the rectangle
                     region2_pointB, // Second point which defines the rectangle
                     GREEN, // The color the rectangle is drawn in
                     -1); // Negative thickness means solid fill
-
+**/
         }
         else if(min == avg3) // Was it from region 3?
         {
-            position = DuckPosition.RIGHT; // Record our analysis
+            position = DuckPositions.RIGHT; // Record our analysis
 
-
+/**
             Imgproc.rectangle(
                     input, // Buffer to draw on
                     region3_pointA, // First point which defines the rectangle
                     region3_pointB, // Second point which defines the rectangle
                     GREEN, // The color the rectangle is drawn in
                     -1); // Negative thickness means solid fill
-
+**/
         }
         telemetry.addData("POS",position);
         telemetry.update();
@@ -159,7 +159,7 @@ public class DuckPipeline extends OpenCvPipeline {
 
         return input;
     }
-    public DuckPosition getAnalysis()
+    public DuckPositions getAnalysis()
     {
         return position;
     }
