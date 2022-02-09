@@ -268,72 +268,72 @@ public class RoadrunnerSwerve extends LinearOpMode {
 
              BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
              if (Math.abs(BLTerror) > tolerance ) {
-             BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
-             double BLTderivative = (BLTerror - BLTlastError) / BLTtimer.seconds();
-             BLTintegralSum = BLTintegralSum + (BLTerror * BLTtimer.seconds());
-             double BLTout = (Kp*BLTerror)+(Kd*BLTderivative)+(Ki*BLTintegralSum)+(Kf*Math.signum(BLTerror));
-             BLT.setPower(BLTout/10);
+                 BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
+                 double BLTderivative = (BLTerror - BLTlastError) / BLTtimer.seconds();
+                 BLTintegralSum = BLTintegralSum + (BLTerror * BLTtimer.seconds());
+                 double BLTout = (Kp*BLTerror)+(Kd*BLTderivative)+(Ki*BLTintegralSum)+(Kf*Math.signum(BLTerror));
+                 BLT.setPower(BLTout/10);
 
-             BLTlastError = BLTerror;
-             BLTtimer.reset();
+                 BLTlastError = BLTerror;
+                 BLTtimer.reset();
 
              }
              if (Math.abs(BLTerror)<tolerance){
-             BLT.setPower(0);
+                 BLT.setPower(0);
              }
 
 
              BRTerror = AngleUnit.normalizeDegrees(BRTreference- BRP);
              if (Math.abs(BRTerror) > tolerance ) {
-             BRTerror = AngleUnit.normalizeDegrees(BRTreference- BRP);
-             double BRTderivative = (BRTerror - BRTlastError) / BRTtimer.seconds();
-             BRTintegralSum = BRTintegralSum + (BRTerror * BRTtimer.seconds());
-             double BRTout = (Kp*BRTerror)+(Kd*BRTderivative)+(Ki*BRTintegralSum)+(Kf*Math.signum(BRTerror));
-             BRT.setPower(BRTout/10);
+                 BRTerror = AngleUnit.normalizeDegrees(BRTreference- BRP);
+                 double BRTderivative = (BRTerror - BRTlastError) / BRTtimer.seconds();
+                 BRTintegralSum = BRTintegralSum + (BRTerror * BRTtimer.seconds());
+                 double BRTout = (Kp*BRTerror)+(Kd*BRTderivative)+(Ki*BRTintegralSum)+(Kf*Math.signum(BRTerror));
+                 BRT.setPower(BRTout/10);
 
-             BRTlastError = BRTerror;
-             BRTtimer.reset();
+                 BRTlastError = BRTerror;
+                 BRTtimer.reset();
 
              }
              if (Math.abs(BRTerror)<tolerance){
-             BRT.setPower(0);
+                 BRT.setPower(0);
              }
 
 
              FLTerror = AngleUnit.normalizeDegrees(FLTreference - FLP);
              if (Math.abs(FLTerror) > tolerance ) {
-             FLTerror = AngleUnit.normalizeDegrees(FLTreference - FLP);
+                 FLTerror = AngleUnit.normalizeDegrees(FLTreference - FLP);
 
-             double FLTderivative = (FLTerror - FLTlastError) / FLTtimer.seconds();
-             FLTintegralSum = FLTintegralSum + (FLTerror * FLTtimer.seconds());
-             double FLTout = (Kp*FLTerror)+(Kd*FLTderivative)+(Ki*FLTintegralSum)+(Kf*Math.signum(FLTerror));
-             FLT.setPower(FLTout/10);
+                 double FLTderivative = (FLTerror - FLTlastError) / FLTtimer.seconds();
+                 FLTintegralSum = FLTintegralSum + (FLTerror * FLTtimer.seconds());
+                 double FLTout = (Kp*FLTerror)+(Kd*FLTderivative)+(Ki*FLTintegralSum)+(Kf*Math.signum(FLTerror));
+                 FLT.setPower(FLTout/10);
 
-             FLTlastError = FLTerror;
-             FLTtimer.reset();
+                 FLTlastError = FLTerror;
+                 FLTtimer.reset();
 
              }
              if (Math.abs(FLTerror)<tolerance){
-             FLT.setPower(0);
+                 FLT.setPower(0);
              }
 
 
              FRTerror = AngleUnit.normalizeDegrees(FRTreference - FRP);
              if (Math.abs(FRTerror) > tolerance ) {
 
-             FRTerror = AngleUnit.normalizeDegrees(FRTreference - FRP);
+                 FRTerror = AngleUnit.normalizeDegrees(FRTreference - FRP);
 
-             double FRTderivative = (FRTerror - FRTlastError) / FRTtimer.seconds();
-             FRTintegralSum = FRTintegralSum + (FRTerror * FRTtimer.seconds());
-             double FRTout = (Kp*FRTerror)+(Kd*FRTderivative)+(Ki*FRTintegralSum)+(Kf*Math.signum(FRTerror));
-             FRT.setPower(FRTout/10);
+                 double FRTderivative = (FRTerror - FRTlastError) / FRTtimer.seconds();
+                 FRTintegralSum = FRTintegralSum + (FRTerror * FRTtimer.seconds());
+                 double FRTout = (Kp*FRTerror)+(Kd*FRTderivative)+(Ki*FRTintegralSum)+(Kf*Math.signum(FRTerror));
+                 FRT.setPower(FRTout/10);
 
-             FRTlastError = FRTerror;
-             FRTtimer.reset();
+                 FRTlastError = FRTerror;
+                 FRTtimer.reset();
 
              }
              if (Math.abs(FRTerror)<tolerance){
-                 FRT.setPower(0);
+                     FRT.setPower(0);
              }
 
             telemetry.addData("BLTreference",BLTreference);

@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 
 @Config
@@ -91,11 +97,23 @@ public class Decentswerve extends LinearOpMode {
     public static double OTDP = 0.5;
     public static double DROPP = 0.5;
 
+    BNO055IMU IMU;
+    Orientation angles;
 
 
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
-        telemetry.update();
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = true;
+        parameters.loggingTag = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        IMU = hardwareMap.get(BNO055IMU.class, "IMU");
+        IMU.initialize(parameters);
+        IMU.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -136,6 +154,8 @@ public class Decentswerve extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+            angles   = IMU.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            double heading = angles.firstAngle*-1;
 
 
             y2 = gamepad1.right_stick_y;
@@ -192,10 +212,10 @@ public class Decentswerve extends LinearOpMode {
                 double atan = Math.atan2(x1,-y1);
                 atan *= 57.2958;
 
-                BLTreference = atan;
-                BRTreference = atan;
-                FLTreference = atan;
-                FRTreference = atan;
+                BLTreference = atan-heading;
+                BRTreference = atan-heading;
+                FLTreference = atan-heading;
+                FRTreference = atan-heading;
 
                 BLD.setPower(y2);
                 BRD.setPower(y2);
