@@ -46,11 +46,10 @@ public class Decentswerve extends LinearOpMode {
 /**
     private CRServo INS = null;
     private Servo INFL = null;
+    private Servo DROP = null;
+ **/
     private Servo OTD = null;
     private DcMotorEx OTE = null;
-
-    private Servo DROP = null;
-**/
     FtcDashboard dashboard;
 
     public static double Kp = 0.2;
@@ -97,6 +96,13 @@ public class Decentswerve extends LinearOpMode {
     public static double OTDP = 0.5;
     public static double DROPP = 0.5;
 
+    public static double BLPC = 15;
+    public static double FRPC = 5;
+    public static double BRPC = -3;
+    public static double FLPC = 2;
+
+    double atan = 0;
+
     BNO055IMU IMU;
     Orientation angles;
 
@@ -134,11 +140,10 @@ public class Decentswerve extends LinearOpMode {
 /**
         INS = hardwareMap.get(CRServo.class, "INS");
         INFL = hardwareMap.get(Servo.class, "INFL");
+        DROP = hardwareMap.get(Servo.class, "DROP");
+ **/
         OTD = hardwareMap.get(Servo.class, "OTD");
         OTE = hardwareMap.get(DcMotorEx.class,"OTE");
-
-        DROP = hardwareMap.get(Servo.class, "DROP");
-**/
         BLT.setDirection(CRServo.Direction.REVERSE);
         BRT.setDirection(CRServo.Direction.REVERSE);
         FLT.setDirection(CRServo.Direction.REVERSE);
@@ -146,14 +151,22 @@ public class Decentswerve extends LinearOpMode {
 
         dashboard = FtcDashboard.getInstance();
 
-/**
-        OTD.setPosition(0.35);
-        DROP.setPosition(DROPP);
-**/
+
+        OTD.setPosition(0.2);
+        //DROP.setPosition(DROPP);
+
 
         waitForStart();
 
         while (opModeIsActive()) {
+            y2 = gamepad1.right_stick_y;
+            x1 = gamepad1.left_stick_x;
+            y1 = gamepad1.left_stick_y;
+
+
+
+
+
             angles   = IMU.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = angles.firstAngle*-1;
 
@@ -209,13 +222,25 @@ public class Decentswerve extends LinearOpMode {
                 y2 = -gamepad1.right_stick_y;
                 x1 = gamepad1.left_stick_x;
                 y1 = gamepad1.left_stick_y;
-                double atan = Math.atan2(x1,-y1);
-                atan *= 57.2958;
+                if (y1 == 0 && x1 == 0){
+                    y1 = -1;
+                }
 
-                BLTreference = atan-heading;
-                BRTreference = atan-heading;
-                FLTreference = atan-heading;
-                FRTreference = atan-heading;
+                double atan = Math.atan2(-x1,-y1);
+                atan *= 57.295779513082320876;
+                angles   = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                heading = angles.firstAngle*-1;
+                BLTreference = atan+heading;
+                BRTreference = atan+heading;
+                FLTreference = atan+heading;
+                FRTreference = atan+heading;
+
+                FRTreference -= FRPC;
+                FLTreference -= FLPC;
+                BRTreference -= BRPC;
+                BLTreference -= BLPC;
+
+
 
                 BLD.setPower(y2);
                 BRD.setPower(y2);
@@ -233,22 +258,22 @@ public class Decentswerve extends LinearOpMode {
             }
             //INFL.setPosition(INFP);
             if (gamepad1.y){
-                OTDP = 0;
+                OTDP = 0.95;
             }
             if (!gamepad1.y){
-                    OTDP = 0.3;
+                OTDP = 0.4;
             }
-            //OTD.setPosition(OTDP);
+            OTD.setPosition(OTDP);
 
             //depositing pos = 0
-            //resting pos = 0.35
+            //resting pos = 0.4
             //init pos = 0.1
             double OTEV = 0;
-            OTEV = gamepad1.right_trigger*-0.75;
+            OTEV = gamepad1.right_trigger*-1;
             if (gamepad1.right_bumper){
-                OTEV *= -0.5;
+                OTEV *= -1;
             }
-            //OTE.setPower(OTEV);
+            OTE.setPower(OTEV);
 
 
             BLP = BLE.getVoltage() * 74.16;
@@ -288,6 +313,31 @@ public class Decentswerve extends LinearOpMode {
             }
             if(FRP > 180) {
                 FRP -= 360;
+            }
+
+            if(BLTreference <= -180) {
+                BLTreference += 360;
+            }
+            if(BLTreference > 180) {
+                BLTreference -= 360;
+            }
+            if(BRTreference <= -180) {
+                BRTreference += 360;
+            }
+            if(BRTreference > 180) {
+                BRTreference -= 360;
+            }
+            if(FLTreference <= -180) {
+                FLTreference += 360;
+            }
+            if(FLTreference > 180) {
+                FLTreference -= 360;
+            }
+            if(FRTreference <= -180) {
+                FRTreference += 360;
+            }
+            if(FRTreference > 180) {
+                FRTreference -= 360;
             }
 
 
@@ -370,14 +420,8 @@ public class Decentswerve extends LinearOpMode {
             telemetry.addData("BRTreference",BRTreference);
             telemetry.addData("FLTreference",FLTreference);
             telemetry.addData("FRTreference",FRTreference);
-            telemetry.addData("BLP",BLP);
-            telemetry.addData("BRP",BRP);
-            telemetry.addData("FLP",FLP);
-            telemetry.addData("FRP",FRP);
-            //telemetry.addData("OTE",OTE.getCurrentPosition());
-            telemetry.addData("OTEV",OTEV);
-            telemetry.addData("G",gamepad1.right_trigger);
-            //telemetry.addData("COLOR TEST",fontcolor="red");
+            telemetry.addData("heading",heading);
+            telemetry.addData("Atan",atan);
             telemetry.update();
         }
     }

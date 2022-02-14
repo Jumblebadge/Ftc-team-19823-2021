@@ -1,23 +1,19 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 public class angleWrap {
-    /**
-     *
-     * @param radians
-     * @return
-     */
 
-    public static double angleWrap(double radians){
 
-        while (radians > Math.PI) {
-            radians -= 2 * Math.PI;
+
+    public static double angleWrap(double wrap){
+
+        if(wrap <= -180) {
+            wrap += 360;
+        }
+        if(wrap > 180) {
+            wrap -= 360;
         }
 
-        while (radians < -Math.PI) {
-            radians += 2 * Math.PI;
-        }
-
-        return radians;
+        return wrap;
     }
 
 
