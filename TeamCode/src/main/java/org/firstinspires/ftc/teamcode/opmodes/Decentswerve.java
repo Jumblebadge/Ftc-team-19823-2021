@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -43,11 +44,12 @@ public class Decentswerve extends LinearOpMode {
     private DcMotorEx BRD = null;
     private DcMotorEx FLD = null;
     private DcMotorEx FRD = null;
-/**
+
     private CRServo INS = null;
     private Servo INFL = null;
-    private Servo DROP = null;
- **/
+    private DcMotorEx INE = null;
+//    private Servo DROP = null;
+
     private Servo OTD = null;
     private DcMotorEx OTE = null;
     FtcDashboard dashboard;
@@ -92,6 +94,7 @@ public class Decentswerve extends LinearOpMode {
     double x1 = 0;
     double y2 = 0;
     double y1 = 0;
+    double x2 = 0;
     public static double INFP = 0.5;
     public static double OTDP = 0.5;
     public static double DROPP = 0.5;
@@ -137,17 +140,20 @@ public class Decentswerve extends LinearOpMode {
         BRT = hardwareMap.get(CRServo.class, "BRT");
         FLT = hardwareMap.get(CRServo.class, "FLT");
         FRT = hardwareMap.get(CRServo.class, "FRT");
-/**
+
         INS = hardwareMap.get(CRServo.class, "INS");
         INFL = hardwareMap.get(Servo.class, "INFL");
-        DROP = hardwareMap.get(Servo.class, "DROP");
- **/
+        INE = hardwareMap.get(DcMotorEx.class,"INE");
+
+//        DROP = hardwareMap.get(Servo.class, "DROP");
+
         OTD = hardwareMap.get(Servo.class, "OTD");
         OTE = hardwareMap.get(DcMotorEx.class,"OTE");
         BLT.setDirection(CRServo.Direction.REVERSE);
         BRT.setDirection(CRServo.Direction.REVERSE);
         FLT.setDirection(CRServo.Direction.REVERSE);
         FRT.setDirection(CRServo.Direction.REVERSE);
+        INS.setDirection(DcMotorSimple.Direction.REVERSE);
 
         dashboard = FtcDashboard.getInstance();
 
@@ -162,17 +168,10 @@ public class Decentswerve extends LinearOpMode {
             y2 = gamepad1.right_stick_y;
             x1 = gamepad1.left_stick_x;
             y1 = gamepad1.left_stick_y;
-
-
-
-
+            x2 = gamepad1.right_stick_x;
 
             angles   = IMU.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = angles.firstAngle*-1;
-
-
-            y2 = gamepad1.right_stick_y;
-            x1 = gamepad1.left_stick_x;
 
             INFP = Range.clip(INFP,0.1,1);
 
@@ -185,10 +184,10 @@ public class Decentswerve extends LinearOpMode {
                 FRTreference = 45;
                 FLTreference = -45;
 
-                BLD.setPower(y2*-1);
-                BRD.setPower(y2);
-                FRD.setPower(y2);
-                FLD.setPower(y2*-1);
+                BLD.setPower(y2*-1/2);
+                BRD.setPower(y2/2);
+                FRD.setPower(y2/2);
+                FLD.setPower(y2*-1/2);
             }
             else if (gamepad1.dpad_right){
                 y2 = -gamepad1.right_stick_y;
@@ -248,46 +247,54 @@ public class Decentswerve extends LinearOpMode {
                 FLD.setPower(y2);
             }
 
-            if (gamepad1.a){
+            if (gamepad2.a){
                 INFP = 0.95;
             }
-            if (!gamepad1.a) {
+            if (!gamepad2.a) {
                 if (INFP != 0.1){
                     INFP -= 0.029;
                 }
             }
-            //INFL.setPosition(INFP);
-            if (gamepad1.y){
+            INFL.setPosition(INFP);
+
+            if (gamepad2.y){
                 OTDP = 0.95;
             }
-            if (!gamepad1.y){
+            if (!gamepad2.y){
                 OTDP = 0.4;
             }
             OTD.setPosition(OTDP);
-
             //depositing pos = 0
             //resting pos = 0.4
             //init pos = 0.1
+
             double OTEV = 0;
-            OTEV = gamepad1.right_trigger*-1;
-            if (gamepad1.right_bumper){
+            OTEV = gamepad2.right_trigger*-1;
+            if (gamepad2.right_bumper){
                 OTEV *= -1;
             }
             OTE.setPower(OTEV);
+
+            double INEV = 0;
+            INEV = gamepad2.left_trigger*-1;
+            if (gamepad2.left_bumper){
+                INEV *= -1;
+            }
+            INE.setPower(INEV);
 
 
             BLP = BLE.getVoltage() * 74.16;
             BRP = BRE.getVoltage() * 74.16;
             FLP = FLE.getVoltage() * 74.16;
             FRP = FRE.getVoltage() * 74.16;
-/**
+
             if(INFP>0.2){
                 INS.setPower(1);}
-            else if(gamepad1.b){
+            else if(gamepad2.b){
                 INS.setPower(-0.25);}
             else{
                 INS.setPower(0);}
-**/
+
 
 
             if(BLP <= -180) {
@@ -339,11 +346,6 @@ public class Decentswerve extends LinearOpMode {
             if(FRTreference > 180) {
                 FRTreference -= 360;
             }
-
-
-
-
-
 
 
             BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
@@ -415,13 +417,19 @@ public class Decentswerve extends LinearOpMode {
             if (Math.abs(FRTerror)<tolerance){
                 FRT.setPower(0);
             }
-
-            telemetry.addData("BLTreference",BLTreference);
-            telemetry.addData("BRTreference",BRTreference);
-            telemetry.addData("FLTreference",FLTreference);
-            telemetry.addData("FRTreference",FRTreference);
-            telemetry.addData("heading",heading);
-            telemetry.addData("Atan",atan);
+            OTE.setPower(gamepad2.right_stick_y);
+            String color = "#0f2259";
+            String color1 = "#b28c00";
+            telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
+            telemetry.addData("", String.format("<span style=\"color:%s\">%s</span>",color1,"\n" +
+                    "▬▬▬▬▬▬▬▬▬▬") + String.format("<span style=\"color:%s\">%s</span>",color,"" +"▬▬▬▬▬▬▬▬▬▬\n") +
+                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░░░░░██╗██████╗░") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|-----------------------------|\n") +
+                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░░░░░██║██╔══██╗") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|-----------------------------|\n") +
+                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░░░░░██║██████╦╝") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|------Jolly Blue--------|\n") +
+                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"██╗░░██║██╔══██╗") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|------①⑨⑧②③-------|\n") +
+                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"╚█████╔╝██████╦╝") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|--------Taylor------------|\n") +
+                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░╚════╝░╚═════╝░") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|--------Connor----------|\n") +
+                    String.format("<span style=\"color:%s\">%s</span>",color1,"" +"▬▬▬▬▬▬▬▬▬▬") + String.format("<span style=\"color:%s\">%s</span>",color,""+"▬▬▬▬▬▬▬▬▬▬\n"));
             telemetry.update();
         }
     }

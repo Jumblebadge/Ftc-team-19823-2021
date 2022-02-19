@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.vision;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -17,19 +17,19 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
-//import org.firstinspires.ftc.teamcode.opmodes.Ducktestop.DuckPipeline.DuckPosition;
+//import org.firstinspires.ftc.teamcode.vision.Ducktestop.DuckPipeline.DuckPosition;
 
 
 @TeleOp
 public class Ducktestop extends LinearOpMode {
 
     OpenCvWebcam webcam;
-    //DuckPipeline pipeline;
+    DuckPipeline pipeline;
 
 
     @Override
     public void runOpMode()
-    {/**
+    {
         pipeline = new DuckPipeline();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -214,4 +214,4 @@ public class Ducktestop extends LinearOpMode {
         return position;}
 
 
-    }**/}}
+    }}

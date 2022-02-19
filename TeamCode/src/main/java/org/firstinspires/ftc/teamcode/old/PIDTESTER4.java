@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.old;
 
 import android.companion.BluetoothLeDeviceFilter;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.util.Range;
 import java.io.InterruptedIOException;
 
 
-
+@Disabled
 @TeleOp(name="PIDTESTER4", group="Linear Opmode")
 public class PIDTESTER4 extends LinearOpMode {
 
