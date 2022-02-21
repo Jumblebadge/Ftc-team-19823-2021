@@ -32,6 +32,7 @@ public class TestingRandomStuff extends LinearOpMode {
 
     FtcDashboard dashboard;
     private DcMotorEx OTE = null;
+    private Servo OTD = null;
 
 
     BNO055IMU IMU;
@@ -50,6 +51,7 @@ public class TestingRandomStuff extends LinearOpMode {
 
         OTE = hardwareMap.get(DcMotorEx.class,"OTE");
         IMU = hardwareMap.get(BNO055IMU.class, "IMU");
+        OTD = hardwareMap.get(Servo.class,"OTD");
 
         IMU.initialize(parameters);
         IMU.startAccelerationIntegration(new Position(), new Velocity(), 1000);
@@ -64,6 +66,14 @@ public class TestingRandomStuff extends LinearOpMode {
 
         while (opModeIsActive()) {
             OTE.setPower(gamepad1.right_stick_y);
+            double OTDP=0;
+            if (gamepad2.y){
+                OTDP = 1;
+            }
+            if (!gamepad2.y){
+                OTDP = 0.5;
+            }
+            OTD.setPosition(OTDP);
             String color = "#0f2259";
             String color1 = "#b28c00";
             telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
@@ -78,6 +88,20 @@ public class TestingRandomStuff extends LinearOpMode {
                     String.format("<span style=\"color:%s\">%s</span>",color1,"" +"▬▬▬▬▬▬▬▬▬▬") + String.format("<span style=\"color:%s\">%s</span>",color,""+"▬▬▬▬▬▬▬▬▬▬\n"));
             telemetry.addData("TEST", String.format("<span style=\"color:%s\">%s</span>",color,gamepad1.right_stick_y));
             telemetry.update();
+
+
+
+
+
+        }
+
+    }
+    private void ANGELWRP(double angle){
+        if(angle <= -180) {
+            angle += 360;
+        }
+        if(angle > 180) {
+            angle -= 360;
         }
     }
 }

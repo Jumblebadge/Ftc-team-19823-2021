@@ -48,7 +48,7 @@ public class Decentswerve extends LinearOpMode {
     private CRServo INS = null;
     private Servo INFL = null;
     private DcMotorEx INE = null;
-//    private Servo DROP = null;
+    private Servo DROP = null;
 
     private Servo OTD = null;
     private DcMotorEx OTE = null;
@@ -97,12 +97,12 @@ public class Decentswerve extends LinearOpMode {
     double x2 = 0;
     public static double INFP = 0.5;
     public static double OTDP = 0.5;
-    public static double DROPP = 0.5;
+    public static double DROPP = 0;
 
-    public static double BLPC = 15;
-    public static double FRPC = 5;
-    public static double BRPC = -3;
-    public static double FLPC = 2;
+    public static double BLPC = 10;
+    public static double FRPC = -5;
+    public static double BRPC = -8;
+    public static double FLPC = -10;
 
     double atan = 0;
 
@@ -145,7 +145,7 @@ public class Decentswerve extends LinearOpMode {
         INFL = hardwareMap.get(Servo.class, "INFL");
         INE = hardwareMap.get(DcMotorEx.class,"INE");
 
-//        DROP = hardwareMap.get(Servo.class, "DROP");
+        DROP = hardwareMap.get(Servo.class, "DROP");
 
         OTD = hardwareMap.get(Servo.class, "OTD");
         OTE = hardwareMap.get(DcMotorEx.class,"OTE");
@@ -159,7 +159,7 @@ public class Decentswerve extends LinearOpMode {
 
 
         OTD.setPosition(0.2);
-        //DROP.setPosition(DROPP);
+        DROP.setPosition(0);
 
 
         waitForStart();
@@ -248,38 +248,34 @@ public class Decentswerve extends LinearOpMode {
             }
 
             if (gamepad2.a){
-                INFP = 0.95;
+                INFP = 0.975;
             }
             if (!gamepad2.a) {
-                if (INFP != 0.1){
-                    INFP -= 0.029;
-                }
+                INFP = 0.2;
             }
+            if (gamepad2.left_bumper) {
+                INFP = 0.1;}
             INFL.setPosition(INFP);
+            //DROP.setPosition(DROPP);
 
+            double OTDP=0;
             if (gamepad2.y){
-                OTDP = 0.95;
+                OTDP = 1;
             }
             if (!gamepad2.y){
-                OTDP = 0.4;
+                OTDP = 0.5;
             }
             OTD.setPosition(OTDP);
-            //depositing pos = 0
-            //resting pos = 0.4
+            //depositing pos = 1
+            //resting pos = 0.5
             //init pos = 0.1
 
             double OTEV = 0;
-            OTEV = gamepad2.right_trigger*-1;
-            if (gamepad2.right_bumper){
-                OTEV *= -1;
-            }
+            OTEV = gamepad2.right_stick_y;
             OTE.setPower(OTEV);
 
             double INEV = 0;
-            INEV = gamepad2.left_trigger*-1;
-            if (gamepad2.left_bumper){
-                INEV *= -1;
-            }
+            INEV = gamepad2.left_stick_y;
             INE.setPower(INEV);
 
 
@@ -289,9 +285,15 @@ public class Decentswerve extends LinearOpMode {
             FRP = FRE.getVoltage() * 74.16;
 
             if(INFP>0.2){
-                INS.setPower(1);}
+                INS.setPower(1);
+            }
+            else if(gamepad2.right_bumper){
+                INS.setPower(1);
+            }
             else if(gamepad2.b){
-                INS.setPower(-0.25);}
+                INS.setPower(-0.25);
+
+            }
             else{
                 INS.setPower(0);}
 
@@ -421,6 +423,7 @@ public class Decentswerve extends LinearOpMode {
             String color = "#0f2259";
             String color1 = "#b28c00";
             telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
+
             telemetry.addData("", String.format("<span style=\"color:%s\">%s</span>",color1,"\n" +
                     "▬▬▬▬▬▬▬▬▬▬") + String.format("<span style=\"color:%s\">%s</span>",color,"" +"▬▬▬▬▬▬▬▬▬▬\n") +
                     String.format("<span style=\"color:%s\">%s</span>",color,"" +"░░░░░██╗██████╗░") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|-----------------------------|\n") +
@@ -430,6 +433,11 @@ public class Decentswerve extends LinearOpMode {
                     String.format("<span style=\"color:%s\">%s</span>",color,"" +"╚█████╔╝██████╦╝") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|--------Taylor------------|\n") +
                     String.format("<span style=\"color:%s\">%s</span>",color,"" +"░╚════╝░╚═════╝░") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|--------Connor----------|\n") +
                     String.format("<span style=\"color:%s\">%s</span>",color1,"" +"▬▬▬▬▬▬▬▬▬▬") + String.format("<span style=\"color:%s\">%s</span>",color,""+"▬▬▬▬▬▬▬▬▬▬\n"));
+            telemetry.addData("IMU",heading);
+            telemetry.addData("reference",BLTreference);
+            telemetry.addData("BLP",BLP);
+            telemetry.addData("OTDP",OTDP);
+            telemetry.addData("OTDPOS",OTD.getPosition());
             telemetry.update();
         }
     }
