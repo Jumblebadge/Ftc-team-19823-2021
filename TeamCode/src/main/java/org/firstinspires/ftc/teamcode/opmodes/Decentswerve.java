@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -23,6 +24,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+
+import org.firstinspires.ftc.teamcode.maths.mathsOperations;
+import org.firstinspires.ftc.teamcode.maths.swerveMaths;
+import org.firstinspires.ftc.teamcode.maths.PIDmaths;
 
 
 @Config
@@ -110,6 +115,9 @@ public class Decentswerve extends LinearOpMode {
     Orientation angles;
 
 
+
+
+
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
 
@@ -125,6 +133,8 @@ public class Decentswerve extends LinearOpMode {
         IMU.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+
 
         BLE = hardwareMap.get(AnalogInput.class, "BLE");
         BRE = hardwareMap.get(AnalogInput.class, "BRE");
@@ -247,6 +257,11 @@ public class Decentswerve extends LinearOpMode {
                 FLD.setPower(y2);
             }
 
+
+
+
+
+
             if (gamepad2.a){
                 INFP = 0.975;
             }
@@ -296,7 +311,6 @@ public class Decentswerve extends LinearOpMode {
             }
             else{
                 INS.setPower(0);}
-
 
 
             if(BLP <= -180) {
