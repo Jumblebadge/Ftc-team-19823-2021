@@ -25,9 +25,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 
-@Config
-@TeleOp(name="Decentswerve", group="Linear Opmode")
-public class Decentswerve extends LinearOpMode {
+public class SwerveMath {
+
+    public void SWAVEMATHS(double strafe,double forward,double rotate,double imu){
+        
+    }
 
 
     private AnalogInput BLE = null;
@@ -351,12 +353,12 @@ public class Decentswerve extends LinearOpMode {
             BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
             if (Math.abs(BLTerror) > tolerance ) {
                 BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
-                 double BLTderivative = (BLTerror - BLTlastError) / BLTtimer.seconds();
-                 BLTintegralSum = BLTintegralSum + (BLTerror * BLTtimer.seconds());
-                 double BLTout = (Kp*BLTerror)+(Kd*BLTderivative)+(Ki*BLTintegralSum)+(Kf*Math.signum(BLTerror));
-                 BLT.setPower(BLTout/10);
-                 BLTlastError = BLTerror;
-                 BLTtimer.reset();
+                double BLTderivative = (BLTerror - BLTlastError) / BLTtimer.seconds();
+                BLTintegralSum = BLTintegralSum + (BLTerror * BLTtimer.seconds());
+                double BLTout = (Kp*BLTerror)+(Kd*BLTderivative)+(Ki*BLTintegralSum)+(Kf*Math.signum(BLTerror));
+                BLT.setPower(BLTout/10);
+                BLTlastError = BLTerror;
+                BLTtimer.reset();
             }
             if (Math.abs(BLTerror)<tolerance){
                 BLT.setPower(0);
@@ -435,4 +437,4 @@ public class Decentswerve extends LinearOpMode {
             telemetry.update();
         }
     }
-    }
+}

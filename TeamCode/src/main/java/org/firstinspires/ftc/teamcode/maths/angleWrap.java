@@ -1,8 +1,6 @@
-package org.firstinspires.ftc.teamcode.old;
+package org.firstinspires.ftc.teamcode.maths;
 
 public class angleWrap {
-
-
 
     public static double angleWrap(double wrap){
 
