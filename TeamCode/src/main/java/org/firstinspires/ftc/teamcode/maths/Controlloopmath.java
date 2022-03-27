@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.maths;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-public class PIDmaths {
+public class Controlloopmath {
 
     private double integralSum,out,lastError;
-    //PID for all things
+    //PID loop
     public double PIDout(double reference, double state, double Kp, double Kd, double Ki, double Kf, double elapstedtime) {
         //calculate error and normalize it
         double error = AngleUnit.normalizeDegrees(reference - state);

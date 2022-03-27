@@ -1,81 +1,73 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
+//Import EVERYTHING we need
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-import org.firstinspires.ftc.teamcode.maths.mathsOperations;
-import org.firstinspires.ftc.teamcode.maths.swerveMaths;
-import org.firstinspires.ftc.teamcode.maths.PIDmaths;
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;import com.acmerobotics.dashboard.config.Config;import com.qualcomm.robotcore.hardware.AnalogInput;import com.acmerobotics.dashboard.FtcDashboard;import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;import com.qualcomm.hardware.bosch.BNO055IMU;import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;import com.qualcomm.robotcore.hardware.DcMotorEx;import com.qualcomm.robotcore.hardware.CRServo;import com.qualcomm.robotcore.util.ElapsedTime;import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;import org.firstinspires.ftc.robotcore.external.navigation.Orientation;import org.firstinspires.ftc.teamcode.maths.Controlloopmath;import org.firstinspires.ftc.teamcode.maths.mathsOperations;import org.firstinspires.ftc.robotcore.external.navigation.Position;import org.firstinspires.ftc.teamcode.maths.swerveMaths;
+
+import java.util.List;
 
 
 @Config
 @TeleOp(name="Godswerve", group="Linear Opmode")
 public class Godswerve extends LinearOpMode {
 
+    //Initialize all of our hardware
     private AnalogInput BLE = null, BRE = null, FLE = null, FRE = null;
 
     private CRServo BLT = null, BRT = null, FLT = null, FRT = null;
 
     private DcMotorEx BLD = null, BRD = null, FLD = null, FRD = null;
 
+    List<LynxModule> allHubs = null;
+
+    //Initialize FTCDashboard
     FtcDashboard dashboard;
 
+    //Define reference points
     public static double BLTreference = 0, BRTreference=0,FLTreference=0,FRTreference=0;
 
-    ElapsedTime BLTtimer =  new ElapsedTime();
-    ElapsedTime BRTtimer =  new ElapsedTime();
-    ElapsedTime FLTtimer =  new ElapsedTime();
-    ElapsedTime FRTtimer =  new ElapsedTime();
+    //Timers for the PID loops
+    ElapsedTime BLTtimer =  new ElapsedTime(); ElapsedTime FRTtimer =  new ElapsedTime(); ElapsedTime FLTtimer =  new ElapsedTime(); ElapsedTime BRTtimer =  new ElapsedTime();
 
+    //Define values for wheel positions
     double BLP = 0, BRP = 0, FLP = 0, FRP = 0;
 
+    //Gamepad values
     double x1 = 0, y2 = 0, y1 = 0, x2 = 0;
 
-    double BLTpower=0,BRTpower=0,FLTpower=0,FRTpower=0,BLDpower,BRDpower,FLDpower,FRDpower;
+    //Variables for power of wheels
+    double BLDpower,BRDpower,FLDpower,FRDpower;
 
+    //Tuning values so that wheels are always facing straight (accounts for encoder drift - tuned manually)
     public static double BLPC = 10, FRPC = -5, BRPC = -8, FLPC = -10;
+
+    //PID values
     public static double Kp=0.2,Ki=0,Kd=0.0001,Kf=0;
 
+    //IMU
     BNO055IMU IMU;
     Orientation angles;
 
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
 
+        //Calibrate the IMU
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
         IMU = hardwareMap.get(BNO055IMU.class, "IMU");
         IMU.initialize(parameters);
         IMU.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
+        //Initialize FTCDashboard telemetry
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        //Link all of our hardware to our hardwaremap
         BLE = hardwareMap.get(AnalogInput.class, "BLE");
         BRE = hardwareMap.get(AnalogInput.class, "BRE");
         FLE = hardwareMap.get(AnalogInput.class, "FLE");
@@ -91,19 +83,42 @@ public class Godswerve extends LinearOpMode {
         FLT = hardwareMap.get(CRServo.class, "FLT");
         FRT = hardwareMap.get(CRServo.class, "FRT");
 
+        //Bulk sensor reads
+        allHubs = hardwareMap.getAll(LynxModule.class);
+
+        //Initialize FTCDashboard
         dashboard = FtcDashboard.getInstance();
 
+        //Create objects for the classes we use for swerve
         swerveMaths swavemath = new swerveMaths();
-        PIDmaths pidmath = new PIDmaths();
+        Controlloopmath pidmath = new Controlloopmath();
+
+        //Bulk sensor reads
+        for (LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
 
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-            angles   = IMU.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            //Clear the cache for better loop times (bulk sensor read)
+            for (LynxModule hub : allHubs) {
+                hub.clearBulkCache();
+            }
+
+            //Turn our MA3 absolute encoder signals from volts to degrees
+            BLP = BLE.getVoltage() * -74.16;
+            BRP = BRE.getVoltage() * -74.16;
+            FLP = FLE.getVoltage() * -74.16;
+            FRP = FRE.getVoltage() * -74.16;
+
+            //Update heading of robot
+            angles   = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = angles.firstAngle*-1;
 
+            //Retrieve the angles and powers for all of our wheels from the swerve kinematics
             double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,false);
             BRDpower=output[0];
             BLDpower=output[1];
@@ -114,11 +129,7 @@ public class Godswerve extends LinearOpMode {
             FRTreference=output[6];
             FLTreference=output[7];
 
-            BLP = BLE.getVoltage() * -74.16;
-            BRP = BRE.getVoltage() * -74.16;
-            FLP = FLE.getVoltage() * -74.16;
-            FRP = FRE.getVoltage() * -74.16;
-
+            //Anglewrap our positions and references for each wheel
             BLP=mathsOperations.angleWrap(BLP);
             BRP=mathsOperations.angleWrap(BRP);
             FLP=mathsOperations.angleWrap(FLP);
@@ -129,6 +140,7 @@ public class Godswerve extends LinearOpMode {
             FLTreference=mathsOperations.angleWrap(FLTreference);
             FRTreference=mathsOperations.angleWrap(FRTreference);
 
+            //Run our powers, references, and positions through efficient turning code for each wheel and get the new values
             double[] BLTvalues= mathsOperations.efficientTurn(BLTreference,BLP,BLDpower);
             BLTreference=BLTvalues[0];
             BLDpower=BLTvalues[1];
@@ -145,6 +157,7 @@ public class Godswerve extends LinearOpMode {
             FRTreference=FRTvalues[0];
             FRDpower=FRTvalues[1];
 
+            //Use our Controlloopmath class to find the power needed to go into our CRservo to achieve our desired target
             BLT.setPower(pidmath.PIDout(BLTreference,BLP,Kp,Kd,Ki,Kf,BLTtimer.seconds()));
             //BLD.setPower(BLDpower);
             BLTtimer.reset();
@@ -178,6 +191,7 @@ public class Godswerve extends LinearOpMode {
             telemetry.addData("BRDpower",BRDpower);
             telemetry.addData("BLDpower",BLDpower);
             telemetry.update();
+
         }
     }
 }

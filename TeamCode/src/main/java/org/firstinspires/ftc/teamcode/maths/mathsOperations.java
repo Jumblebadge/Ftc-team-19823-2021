@@ -13,6 +13,7 @@ public class mathsOperations {
         }
         return wrap;
     }
+    //makes sure no wheels turn more than they have to (keeps them within 90 degrees and reverses motor power to compensate)
     public static double[] efficientTurn(double reference,double state,double power){
         double error = reference-state;
         while(error>90) {

@@ -66,7 +66,7 @@ public class swerveMaths {
         frontRightSpeed*=-1;
 
 
-        //put our outputs into a array
+        //put our outputs into an array
         double[] output = {backRightSpeed,backLeftSpeed,frontRightSpeed,frontLeftSpeed,backRightAngle,backLeftAngle,frontRightAngle,frontLeftAngle};
 
         return output;
