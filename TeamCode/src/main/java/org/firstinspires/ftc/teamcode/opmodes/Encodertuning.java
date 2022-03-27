@@ -10,7 +10,9 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.I2cDevice;
-
+import org.firstinspires.ftc.teamcode.maths.mathsOperations;
+import org.firstinspires.ftc.teamcode.maths.swerveMaths;
+import org.firstinspires.ftc.teamcode.maths.PIDmaths;
 
 
 @TeleOp(name="Encodertuning", group="Linear Opmode")
@@ -34,6 +36,7 @@ public class Encodertuning extends LinearOpMode {
         BRE = hardwareMap.get(AnalogInput.class, "BRE");
         FLE = hardwareMap.get(AnalogInput.class, "FLE");
         FRE = hardwareMap.get(AnalogInput.class, "FRE");
+        swerveMaths swavemath = new swerveMaths();
 
 
         waitForStart();
@@ -50,6 +53,11 @@ public class Encodertuning extends LinearOpMode {
             BRP = BRE.getVoltage() * 74.16;
             FLP = FLE.getVoltage() * 74.16;
             FRP = FRE.getVoltage() * 74.16;
+
+            BLP=mathsOperations.angleWrap(BLP);
+            BRP=mathsOperations.angleWrap(BRP);
+            FLP=mathsOperations.angleWrap(FLP);
+            FRP=mathsOperations.angleWrap(FRP);
 
             double atan = Math.atan2(-x1,-y1);
             atan *= 57.2958;

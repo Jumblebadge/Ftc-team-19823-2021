@@ -12,8 +12,10 @@ public class swerveMaths {
         //define our output variables
         double backRightSpeed,backLeftSpeed,backRightAngle,backLeftAngle,frontRightSpeed,frontLeftSpeed,frontRightAngle,frontLeftAngle;
 
-        //depending on the orientation of your imu, you may have to reverse
+        //depending on the orientation of your imu and wheels, you may have to reverse these values
         imu*=-1;
+        strafe*=1;
+        forward*=1;
 
         //field centric toggle
         if(fieldcentrictoggle==false){
@@ -58,6 +60,7 @@ public class swerveMaths {
         backLeftAngle = Math.atan2(a,d)*180 / Math.PI;
         frontRightAngle = Math.atan2(b,c)*180 / Math.PI;
         frontLeftAngle = Math.atan2(b,d)*180/ Math.PI;
+
 
         //put our outputs into a array
         double[] output = {backRightSpeed,backLeftSpeed,frontRightSpeed,frontLeftSpeed,backRightAngle,backLeftAngle,frontRightAngle,frontLeftAngle};

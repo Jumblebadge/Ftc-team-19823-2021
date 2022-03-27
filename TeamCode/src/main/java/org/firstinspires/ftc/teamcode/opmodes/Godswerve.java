@@ -41,7 +41,7 @@ public class Godswerve extends LinearOpMode {
 
     FtcDashboard dashboard;
 
-    double BLTreference = 0, BRTreference=0,FLTreference=0,FRTreference=0;
+    public static double BLTreference = 0, BRTreference=0,FLTreference=0,FRTreference=0;
 
     ElapsedTime BLTtimer =  new ElapsedTime();
     ElapsedTime BRTtimer =  new ElapsedTime();
@@ -52,7 +52,10 @@ public class Godswerve extends LinearOpMode {
 
     double x1 = 0, y2 = 0, y1 = 0, x2 = 0;
 
+    double BLTpower=0,BRTpower=0,FLTpower=0,FRTpower=0,BLDpower,BRDpower,FLDpower,FRDpower;
+
     public static double BLPC = 10, FRPC = -5, BRPC = -8, FLPC = -10;
+    public static double Kp=0.2,Ki=0,Kd=0.0001,Kf=0;
 
     BNO055IMU IMU;
     Orientation angles;
@@ -97,62 +100,72 @@ public class Godswerve extends LinearOpMode {
 
         swerveMaths swavemath = new swerveMaths();
         PIDmaths pidmath = new PIDmaths();
+        mathsOperations maths = new mathsOperations();
 
 
         waitForStart();
 
         while (opModeIsActive()) {
-            y2 = gamepad1.right_stick_y;
-            x1 = gamepad1.left_stick_x;
-            y1 = gamepad1.left_stick_y;
-            x2 = gamepad1.right_stick_x;
 
             angles   = IMU.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = angles.firstAngle*-1;
 
-            swavemath.Math(gamepad1.left_stick_y, gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
+            double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,false);
+            BRDpower=output[0];
+            BLDpower=output[1];
+            FRDpower=output[2];
+            FLDpower=output[3];
+            BRTreference=output[4];
+            BLTreference=output[5];
+            FRTreference=output[6];
+            FLTreference=output[7];
 
             BLP = BLE.getVoltage() * 74.16;
             BRP = BRE.getVoltage() * 74.16;
             FLP = FLE.getVoltage() * 74.16;
             FRP = FRE.getVoltage() * 74.16;
 
-            mathsOperations.angleWrap(BLP);
-            mathsOperations.angleWrap(BRP);
-            mathsOperations.angleWrap(FLP);
-            mathsOperations.angleWrap(FRP);
+            BLP=mathsOperations.angleWrap(BLP);
+            BRP=mathsOperations.angleWrap(BRP);
+            FLP=mathsOperations.angleWrap(FLP);
+            FRP=mathsOperations.angleWrap(FRP);
 
-            mathsOperations.angleWrap(BLTreference);
-            mathsOperations.angleWrap(BRTreference);
-            mathsOperations.angleWrap(FLTreference);
-            mathsOperations.angleWrap(FRTreference);
+            BLTreference=mathsOperations.angleWrap(BLTreference);
+            BRTreference=mathsOperations.angleWrap(BRTreference);
+            FLTreference=mathsOperations.angleWrap(FLTreference);
+            FRTreference=mathsOperations.angleWrap(FRTreference);
 
-            BLT.setPower(pidmath.PIDout(BLTreference,BLP,0.2,0.0001,0,0,BLTtimer.seconds()));
+            BLTreference= maths.efficientTurn(BLTreference,BLP,BLDpower);
+
+
+            double BRTvalues = maths.efficientTurn(BRTreference,BRP,BRDpower);
+            //BRTreference=BRTvalues[0];
+            //BRDpower=BRTvalues[1];
+
+            double FLTvalues = maths.efficientTurn(FLTreference,FLP,FLDpower);
+            //FLTreference=FLTvalues[0];
+            //FLDpower=FLTvalues[1];
+
+            double FRTvalues = maths.efficientTurn(FRTreference,FRP,FRDpower);
+            //FRTreference=FRTvalues[0];
+            //FRDpower=FRTvalues[1];
+
+            BLT.setPower(pidmath.PIDout(BLTreference,BLP,Kp,Kd,Ki,Kf,BLTtimer.seconds()));
+            //BLD.setPower(BLDpower)
             BLTtimer.reset();
 
-            BRT.setPower(pidmath.PIDout(BRTreference,BRP,0.2,0.0001,0,0,BRTtimer.seconds()));
+            BRT.setPower(pidmath.PIDout(BRTreference,BRP,Kp,Kd,Ki,Kf,BRTtimer.seconds()));
+            //BRD.setPower(BRDpower)
             BRTtimer.reset();
 
-            FLT.setPower(pidmath.PIDout(FLTreference,FLP,0.2,0.0001,0,0,FLTtimer.seconds()));
+            FLT.setPower(pidmath.PIDout(FLTreference,FLP,Kp,Kd,Ki,Kf,FLTtimer.seconds()));
+            //FLD.setPower(FLDpower)
             FLTtimer.reset();
 
-            FRT.setPower(pidmath.PIDout(FRTreference,FRP,0.2,0.0001,0,0,FRTtimer.seconds()));
+            FRT.setPower(pidmath.PIDout(FRTreference,FRP,Kp,Kd,Ki,Kf,FRTtimer.seconds()));
+            //FRD.setPower(FRDpower)
             FRTtimer.reset();
 
-
-
-            String color = "#0f2259";
-            String color1 = "#b28c00";
-            telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
-            telemetry.addData("", String.format("<span style=\"color:%s\">%s</span>",color1,"\n" +
-                    "▬▬▬▬▬▬▬▬▬▬") + String.format("<span style=\"color:%s\">%s</span>",color,"" +"▬▬▬▬▬▬▬▬▬▬\n") +
-                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░░░░░██╗██████╗░") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|-----------------------------|\n") +
-                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░░░░░██║██╔══██╗") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|-----------------------------|\n") +
-                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░░░░░██║██████╦╝") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|------Jolly Blue--------|\n") +
-                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"██╗░░██║██╔══██╗") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|------①⑨⑧②③-------|\n") +
-                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"╚█████╔╝██████╦╝") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|--------Taylor------------|\n") +
-                    String.format("<span style=\"color:%s\">%s</span>",color,"" +"░╚════╝░╚═════╝░") + String.format("<span style=\"color:%s\">%s</span>",color1,"" +"|--------Connor----------|\n") +
-                    String.format("<span style=\"color:%s\">%s</span>",color1,"" +"▬▬▬▬▬▬▬▬▬▬") + String.format("<span style=\"color:%s\">%s</span>",color,""+"▬▬▬▬▬▬▬▬▬▬\n"));
             telemetry.addData("IMU",heading);
 
             telemetry.addData("BLTreference",BLTreference);
@@ -164,6 +177,11 @@ public class Godswerve extends LinearOpMode {
             telemetry.addData("BRP",BRP);
             telemetry.addData("FLP",FLP);
             telemetry.addData("FRP",FRP);
+
+            telemetry.addData("FRDpower",FRDpower);
+            telemetry.addData("FLDpower",FLDpower);
+            telemetry.addData("BRDpower",BRDpower);
+            telemetry.addData("BLDpower",BLDpower);
             telemetry.update();
         }
     }

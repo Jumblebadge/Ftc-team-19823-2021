@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+/**
 
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -23,16 +24,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-import org.firstinspires.ftc.teamcode.maths.mathsOperations;
-import org.firstinspires.ftc.teamcode.maths.swerveMaths;
-import org.firstinspires.ftc.teamcode.maths.PIDmaths;
 
+public class SwerveMath {
 
-@Config
-@TeleOp(name="Decentswerve", group="Linear Opmode")
-public class Decentswerve extends LinearOpMode {
+    public void SWAVEMATHS(double strafe,double forward,double rotate,double imu){
+        
+    }
 
 
     private AnalogInput BLE = null;
@@ -104,18 +104,15 @@ public class Decentswerve extends LinearOpMode {
     public static double OTDP = 0.5;
     public static double DROPP = 0;
 
-    public static double BLPC = 22;
-    public static double FRPC = -17;
-    public static double BRPC = -30;
-    public static double FLPC = -25;
+    public static double BLPC = 10;
+    public static double FRPC = -5;
+    public static double BRPC = -8;
+    public static double FLPC = -10;
 
     double atan = 0;
 
     BNO055IMU IMU;
     Orientation angles;
-
-
-
 
 
     public void runOpMode() {
@@ -133,8 +130,6 @@ public class Decentswerve extends LinearOpMode {
         IMU.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-
 
         BLE = hardwareMap.get(AnalogInput.class, "BLE");
         BRE = hardwareMap.get(AnalogInput.class, "BRE");
@@ -257,11 +252,6 @@ public class Decentswerve extends LinearOpMode {
                 FLD.setPower(y2);
             }
 
-
-
-
-
-
             if (gamepad2.a){
                 INFP = 0.975;
             }
@@ -311,6 +301,7 @@ public class Decentswerve extends LinearOpMode {
             }
             else{
                 INS.setPower(0);}
+
 
 
             if(BLP <= -180) {
@@ -365,12 +356,12 @@ public class Decentswerve extends LinearOpMode {
             BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
             if (Math.abs(BLTerror) > tolerance ) {
                 BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
-                 double BLTderivative = (BLTerror - BLTlastError) / BLTtimer.seconds();
-                 BLTintegralSum = BLTintegralSum + (BLTerror * BLTtimer.seconds());
-                 double BLTout = (Kp*BLTerror)+(Kd*BLTderivative)+(Ki*BLTintegralSum)+(Kf*Math.signum(BLTerror));
-                 BLT.setPower(BLTout/10);
-                 BLTlastError = BLTerror;
-                 BLTtimer.reset();
+                double BLTderivative = (BLTerror - BLTlastError) / BLTtimer.seconds();
+                BLTintegralSum = BLTintegralSum + (BLTerror * BLTtimer.seconds());
+                double BLTout = (Kp*BLTerror)+(Kd*BLTderivative)+(Ki*BLTintegralSum)+(Kf*Math.signum(BLTerror));
+                BLT.setPower(BLTout/10);
+                BLTlastError = BLTerror;
+                BLTtimer.reset();
             }
             if (Math.abs(BLTerror)<tolerance){
                 BLT.setPower(0);
@@ -449,4 +440,5 @@ public class Decentswerve extends LinearOpMode {
             telemetry.update();
         }
     }
-    }
+}
+**/
