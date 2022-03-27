@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import org.firstinspires.ftc.teamcode.maths.mathsOperations;
 import org.firstinspires.ftc.teamcode.maths.swerveMaths;
-import org.firstinspires.ftc.teamcode.maths.PIDmaths;
 
 
 @TeleOp(name="Encodertuning", group="Linear Opmode")
