@@ -91,16 +91,10 @@ public class Godswerve extends LinearOpMode {
         FLT = hardwareMap.get(CRServo.class, "FLT");
         FRT = hardwareMap.get(CRServo.class, "FRT");
 
-        BLT.setDirection(CRServo.Direction.REVERSE);
-        BRT.setDirection(CRServo.Direction.REVERSE);
-        FLT.setDirection(CRServo.Direction.REVERSE);
-        FRT.setDirection(CRServo.Direction.REVERSE);
-
         dashboard = FtcDashboard.getInstance();
 
         swerveMaths swavemath = new swerveMaths();
         PIDmaths pidmath = new PIDmaths();
-        mathsOperations maths = new mathsOperations();
 
 
         waitForStart();
@@ -120,10 +114,10 @@ public class Godswerve extends LinearOpMode {
             FRTreference=output[6];
             FLTreference=output[7];
 
-            BLP = BLE.getVoltage() * 74.16;
-            BRP = BRE.getVoltage() * 74.16;
-            FLP = FLE.getVoltage() * 74.16;
-            FRP = FRE.getVoltage() * 74.16;
+            BLP = BLE.getVoltage() * -74.16;
+            BRP = BRE.getVoltage() * -74.16;
+            FLP = FLE.getVoltage() * -74.16;
+            FRP = FRE.getVoltage() * -74.16;
 
             BLP=mathsOperations.angleWrap(BLP);
             BRP=mathsOperations.angleWrap(BRP);
@@ -135,35 +129,36 @@ public class Godswerve extends LinearOpMode {
             FLTreference=mathsOperations.angleWrap(FLTreference);
             FRTreference=mathsOperations.angleWrap(FRTreference);
 
-            BLTreference= maths.efficientTurn(BLTreference,BLP,BLDpower);
+            double[] BLTvalues= mathsOperations.efficientTurn(BLTreference,BLP,BLDpower);
+            BLTreference=BLTvalues[0];
+            BLDpower=BLTvalues[1];
 
+            double[] BRTvalues = mathsOperations.efficientTurn(BRTreference,BRP,BRDpower);
+            BRTreference=BRTvalues[0];
+            BRDpower=BRTvalues[1];
 
-            double BRTvalues = maths.efficientTurn(BRTreference,BRP,BRDpower);
-            //BRTreference=BRTvalues[0];
-            //BRDpower=BRTvalues[1];
+            double[] FLTvalues = mathsOperations.efficientTurn(FLTreference,FLP,FLDpower);
+            FLTreference=FLTvalues[0];
+            FLDpower=FLTvalues[1];
 
-            double FLTvalues = maths.efficientTurn(FLTreference,FLP,FLDpower);
-            //FLTreference=FLTvalues[0];
-            //FLDpower=FLTvalues[1];
-
-            double FRTvalues = maths.efficientTurn(FRTreference,FRP,FRDpower);
-            //FRTreference=FRTvalues[0];
-            //FRDpower=FRTvalues[1];
+            double[] FRTvalues = mathsOperations.efficientTurn(FRTreference,FRP,FRDpower);
+            FRTreference=FRTvalues[0];
+            FRDpower=FRTvalues[1];
 
             BLT.setPower(pidmath.PIDout(BLTreference,BLP,Kp,Kd,Ki,Kf,BLTtimer.seconds()));
-            //BLD.setPower(BLDpower)
+            //BLD.setPower(BLDpower);
             BLTtimer.reset();
 
             BRT.setPower(pidmath.PIDout(BRTreference,BRP,Kp,Kd,Ki,Kf,BRTtimer.seconds()));
-            //BRD.setPower(BRDpower)
+            //BRD.setPower(BRDpower);
             BRTtimer.reset();
 
             FLT.setPower(pidmath.PIDout(FLTreference,FLP,Kp,Kd,Ki,Kf,FLTtimer.seconds()));
-            //FLD.setPower(FLDpower)
+            //FLD.setPower(FLDpower);
             FLTtimer.reset();
 
             FRT.setPower(pidmath.PIDout(FRTreference,FRP,Kp,Kd,Ki,Kf,FRTtimer.seconds()));
-            //FRD.setPower(FRDpower)
+            //FRD.setPower(FRDpower);
             FRTtimer.reset();
 
             telemetry.addData("IMU",heading);

@@ -13,19 +13,20 @@ public class mathsOperations {
         }
         return wrap;
     }
-
-    public double efficientTurn(double reference,double state,double power){
+    public static double[] efficientTurn(double reference,double state,double power){
         double error = reference-state;
         while(error>90) {
-            reference = -180 + error;
             power *=-1;
+            reference -= 180;
+            error = reference-state;
         }
         while(error<-90) {
-            reference = 180 + error;
             power *=-1;
+            reference += 180;
+            error = reference-state;
         }
 
-        double output = reference;
+        double[] output = {reference,power};
         return output;
     }
 }
