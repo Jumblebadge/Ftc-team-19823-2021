@@ -37,7 +37,7 @@ public class Godswerve extends LinearOpMode {
     double BLDpower,BRDpower,FLDpower,FRDpower;
 
     //Tuning values so that wheels are always facing straight (accounts for encoder drift - tuned manually)
-    public static double BLPC = 10, FRPC = -5, BRPC = -8, FLPC = -10;
+    public static double BLPC = -40, FRPC = -4, BRPC = 0, FLPC = -9;
 
     //PID values
     public static double Kp=0.2,Ki=0,Kd=0.0001,Kf=0;
@@ -115,7 +115,7 @@ public class Godswerve extends LinearOpMode {
             double heading = angles.firstAngle*-1;
 
             //Retrieve the angles and powers for all of our wheels from the swerve kinematics
-            double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,false);
+            double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
             BRDpower=output[0];
             BLDpower=output[1];
             FRDpower=output[2];
@@ -124,6 +124,12 @@ public class Godswerve extends LinearOpMode {
             BLTreference=output[5];
             FRTreference=output[6];
             FLTreference=output[7];
+
+            //Subtract our tuning values to account for any encoder drift
+            FRTreference -= FRPC;
+            FLTreference -= FLPC;
+            BRTreference -= BRPC;
+            BLTreference -= BLPC;
 
             //Anglewrap our positions and references for each wheel
             BLP=mathsOperations.angleWrap(BLP);
