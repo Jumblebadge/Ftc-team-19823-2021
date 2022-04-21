@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.maths;
 
 
 public class swerveMaths {
+
     //where our swerve math will be done
     public double[] Math(double forward, double strafe, double rotate, double imu, boolean fieldcentrictoggle){
 

@@ -359,6 +359,7 @@ public class Decentswerve extends LinearOpMode {
             if(FRTreference > 180) {
                 FRTreference -= 360;
             }
+
             BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
             if (Math.abs(BLTerror) > tolerance ) {
                 BLTerror = AngleUnit.normalizeDegrees(BLTreference - BLP);
@@ -372,6 +373,7 @@ public class Decentswerve extends LinearOpMode {
             if (Math.abs(BLTerror)<tolerance){
                 BLT.setPower(0);
             }
+
             BRTerror = AngleUnit.normalizeDegrees(BRTreference- BRP);
             if (Math.abs(BRTerror) > tolerance ) {
                 BRTerror = AngleUnit.normalizeDegrees(BRTreference- BRP);
