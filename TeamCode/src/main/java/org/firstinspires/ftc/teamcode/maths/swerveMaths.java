@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.maths;
 
-
 public class swerveMaths {
 
     //where our swerve math will be done
     public double[] Math(double forward, double strafe, double rotate, double imu, boolean fieldcentrictoggle){
 
         //define our math variables
-        double strafe1,forward1,a,b,c,d;
-        final double length,width,radius;
+        double strafe1,forward1,m1x,m1y,m2x,m2y,m3x,m3y,m4x,m4y;
 
         //define our output variables
         double backRightSpeed,backLeftSpeed,backRightAngle,backLeftAngle,frontRightSpeed,frontLeftSpeed,frontRightAngle,frontLeftAngle;
@@ -19,30 +17,29 @@ public class swerveMaths {
 
         //field centric toggle
         if(fieldcentrictoggle==false){
-            imu=0;
+            //imu=0;
         }
-
-        //distance between wheels
-        length = 14.25;
-        width = 14.25;
-        //"radius" of wheels from center of robot
-        radius = Math.sqrt((width * width) + (length * length));
 
         //rotate vectors by imu heading for field centric
         strafe1=Math.cos(Math.toRadians(imu))*strafe-Math.sin(Math.toRadians(imu))*forward;
         forward1=Math.sin(Math.toRadians(imu))*strafe+Math.cos(Math.toRadians(imu))*forward;
 
         //finding out what has to be done in x and y (length and width) for the movement you need
-        a = strafe1 - rotate * (length / radius);
-        b = strafe1 + rotate * (length / radius);
-        c = forward1 - rotate * (width / radius);
-        d = forward1 + rotate * (width / radius);
+        m1x = strafe1 - rotate * 1;
+        m2x = strafe1 - rotate * 1;
+        m3x = strafe1 - rotate * -1;
+        m4x = strafe1 - rotate * -1;
+
+        m1y = forward1 + rotate * -1;
+        m2y = forward1 + rotate * 1;
+        m3y = forward1 + rotate * 1;
+        m4y = forward1 + rotate * -1;
 
         //converting what the robot has to do into wheel specific values (speed)
-        backRightSpeed = Math.sqrt((a * a) + (c * c));
-        backLeftSpeed = Math.sqrt((a * a) + (d * d));
-        frontRightSpeed = Math.sqrt((b * b) + (c * c));
-        frontLeftSpeed = Math.sqrt((b * b) + (d * d));
+        backRightSpeed = Math.sqrt((m1x * m1x) + (m1y * m1y));
+        backLeftSpeed = Math.sqrt((m2x * m2x) + (m2y * m2y));
+        frontRightSpeed = Math.sqrt((m3x * m3x) + (m3y * m3y));
+        frontLeftSpeed = Math.sqrt((m4x * m4x) + (m4y * m4y));
 
         //make sure that values are scaled correctly and are under 1
         double max1 = Math.max(Math.abs(backLeftSpeed), Math.abs(backRightSpeed));
@@ -56,16 +53,15 @@ public class swerveMaths {
         }
 
         //converting what the robot has to do into wheel specific values (angle)
-        backRightAngle = Math.atan2(a,c)*180 / Math.PI;
-        backLeftAngle = Math.atan2(a,d)*180 / Math.PI;
-        frontRightAngle = Math.atan2(b,c)*180 / Math.PI;
-        frontLeftAngle = Math.atan2(b,d)*180/ Math.PI;
+        backRightAngle = Math.atan2(m1y,m1x)*180 / Math.PI;
+        backLeftAngle = Math.atan2(m2y,m2x)*180 / Math.PI;
+        frontRightAngle = Math.atan2(m3y,m3x)*180 / Math.PI;
+        frontLeftAngle = Math.atan2(m4y,m4x)*180/ Math.PI;
 
         backRightSpeed*=-1;
         backLeftSpeed*=-1;
         frontLeftSpeed*=-1;
         frontRightSpeed*=-1;
-
 
         //put our outputs into an array
         double[] output = {backRightSpeed,backLeftSpeed,frontRightSpeed,frontLeftSpeed,backRightAngle,backLeftAngle,frontRightAngle,frontLeftAngle};

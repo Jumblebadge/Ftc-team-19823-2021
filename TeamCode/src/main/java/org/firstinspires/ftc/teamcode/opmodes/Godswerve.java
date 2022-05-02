@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 //Import EVERYTHING we need
-
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;import java.util.List;import com.qualcomm.hardware.lynx.LynxModule;import org.firstinspires.ftc.robotcore.external.navigation.Velocity;import com.acmerobotics.dashboard.config.Config;import com.qualcomm.robotcore.hardware.AnalogInput;import com.acmerobotics.dashboard.FtcDashboard;import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;import com.qualcomm.hardware.bosch.BNO055IMU;import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;import com.qualcomm.robotcore.hardware.DcMotorEx;import com.qualcomm.robotcore.hardware.CRServo;import com.qualcomm.robotcore.util.ElapsedTime;import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;import org.firstinspires.ftc.robotcore.external.navigation.Orientation;import org.firstinspires.ftc.teamcode.maths.Controlloopmath;import org.firstinspires.ftc.teamcode.maths.mathsOperations;import org.firstinspires.ftc.robotcore.external.navigation.Position;import org.firstinspires.ftc.teamcode.maths.swerveMaths;
-
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;import com.acmerobotics.dashboard.config.Config;import com.qualcomm.robotcore.hardware.AnalogInput;import com.acmerobotics.dashboard.FtcDashboard;import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;import com.qualcomm.hardware.bosch.BNO055IMU;import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;import com.qualcomm.robotcore.hardware.DcMotorEx;import com.qualcomm.robotcore.hardware.CRServo;import com.qualcomm.robotcore.util.ElapsedTime;import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;import org.firstinspires.ftc.robotcore.external.navigation.Orientation;import org.firstinspires.ftc.teamcode.maths.Controlloopmath;import org.firstinspires.ftc.teamcode.maths.mathsOperations;import org.firstinspires.ftc.robotcore.external.navigation.Position;import org.firstinspires.ftc.teamcode.maths.swerveMaths;import java.util.List;import org.firstinspires.ftc.robotcore.external.navigation.Velocity;import com.qualcomm.hardware.lynx.LynxModule;
 
 @Config
 @TeleOp(name="Godswerve", group="Linear Opmode")
@@ -30,17 +28,11 @@ public class Godswerve extends LinearOpMode {
     //Define values for wheel positions
     double BLP = 0, BRP = 0, FLP = 0, FRP = 0;
 
-    //Gamepad values
-    double x1 = 0, y2 = 0, y1 = 0, x2 = 0;
-
     //Variables for power of wheels
     double BLDpower,BRDpower,FLDpower,FRDpower;
 
     //Tuning values so that wheels are always facing straight (accounts for encoder drift - tuned manually)
-    public static double BLPC = -40, FRPC = -4, BRPC = 0, FLPC = -9;
-
-    //PID values
-    public static double Kp=0.2,Ki=0,Kd=0.0001,Kf=0;
+    public static double BLPC = -100, FRPC = -5, BRPC = 87, FLPC = 190;
 
     //IMU
     BNO055IMU IMU;
@@ -87,19 +79,21 @@ public class Godswerve extends LinearOpMode {
 
         //Create objects for the classes we use for swerve
         swerveMaths swavemath = new swerveMaths();
-        Controlloopmath pidmath = new Controlloopmath();
+
+        Controlloopmath BLTPID = new Controlloopmath(0.2,0.0001,0,0,BLTtimer);
+        Controlloopmath BRTPID = new Controlloopmath(0.2,0.0001,0,0,BRTtimer);
+        Controlloopmath FLTPID = new Controlloopmath(0.2,0.0001,0,0,FLTtimer);
+        Controlloopmath FRTPID = new Controlloopmath(0.2,0.0001,0,0,FRTtimer);
 
         //Bulk sensor reads
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
-
         waitForStart();
-
         while (opModeIsActive()) {
 
-            //Clear the cache for better loop times (bulk sensor read)
+            //Clear the cache for better loop times (bulk sensor reads)
             for (LynxModule hub : allHubs) {
                 hub.clearBulkCache();
             }
@@ -113,6 +107,7 @@ public class Godswerve extends LinearOpMode {
             //Update heading of robot
             angles   = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = angles.firstAngle*-1;
+            heading+=135;
 
             //Retrieve the angles and powers for all of our wheels from the swerve kinematics
             double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
@@ -144,37 +139,33 @@ public class Godswerve extends LinearOpMode {
 
             //Run our powers, references, and positions through efficient turning code for each wheel and get the new values
             double[] BLTvalues= mathsOperations.efficientTurn(BLTreference,BLP,BLDpower);
-            BLTreference=BLTvalues[0];
-            BLDpower=BLTvalues[1];
+            //BLTreference=BLTvalues[0];
+            //BLDpower=BLTvalues[1];
 
             double[] BRTvalues = mathsOperations.efficientTurn(BRTreference,BRP,BRDpower);
-            BRTreference=BRTvalues[0];
-            BRDpower=BRTvalues[1];
+            //BRTreference=BRTvalues[0];
+            //BRDpower=BRTvalues[1];
 
             double[] FLTvalues = mathsOperations.efficientTurn(FLTreference,FLP,FLDpower);
-            FLTreference=FLTvalues[0];
-            FLDpower=FLTvalues[1];
+            //FLTreference=FLTvalues[0];
+            //FLDpower=FLTvalues[1];
 
             double[] FRTvalues = mathsOperations.efficientTurn(FRTreference,FRP,FRDpower);
-            FRTreference=FRTvalues[0];
-            FRDpower=FRTvalues[1];
+            //FRTreference=FRTvalues[0];
+            //FRDpower=FRTvalues[1];
 
             //Use our Controlloopmath class to find the power needed to go into our CRservo to achieve our desired target
-            BLT.setPower(pidmath.PIDout(BLTreference,BLP,Kp,Kd,Ki,Kf,BLTtimer.seconds()));
+            BLT.setPower(BLTPID.PIDout(BLTreference,BLP));
             //BLD.setPower(BLDpower);
-            BLTtimer.reset();
 
-            BRT.setPower(pidmath.PIDout(BRTreference,BRP,Kp,Kd,Ki,Kf,BRTtimer.seconds()));
+            BRT.setPower(BRTPID.PIDout(BRTreference,BRP));
             //BRD.setPower(BRDpower);
-            BRTtimer.reset();
 
-            FLT.setPower(pidmath.PIDout(FLTreference,FLP,Kp,Kd,Ki,Kf,FLTtimer.seconds()));
+            FLT.setPower(FLTPID.PIDout(FLTreference,FLP));
             //FLD.setPower(FLDpower);
-            FLTtimer.reset();
 
-            FRT.setPower(pidmath.PIDout(FRTreference,FRP,Kp,Kd,Ki,Kf,FRTtimer.seconds()));
+            FRT.setPower(FRTPID.PIDout(FRTreference,FRP));
             //FRD.setPower(FRDpower);
-            FRTtimer.reset();
 
             telemetry.addData("IMU",heading);
 
@@ -193,7 +184,6 @@ public class Godswerve extends LinearOpMode {
             telemetry.addData("BRDpower",BRDpower);
             telemetry.addData("BLDpower",BLDpower);
             telemetry.update();
-
         }
     }
 }
