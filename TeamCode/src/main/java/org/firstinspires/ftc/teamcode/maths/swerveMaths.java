@@ -24,7 +24,7 @@ public class swerveMaths {
         strafe1=Math.cos(Math.toRadians(imu))*strafe-Math.sin(Math.toRadians(imu))*forward;
         forward1=Math.sin(Math.toRadians(imu))*strafe+Math.cos(Math.toRadians(imu))*forward;
 
-        //finding out what has to be done in x and y (length and width) for the movement you need
+        //making vectors for each wheel of what it has to do to achieve our movement goal (separated into x and y)
         m1x = strafe1 - rotate * 1;
         m2x = strafe1 - rotate * 1;
         m3x = strafe1 - rotate * -1;
@@ -35,13 +35,13 @@ public class swerveMaths {
         m3y = forward1 + rotate * 1;
         m4y = forward1 + rotate * -1;
 
-        //converting what the robot has to do into wheel specific values (speed)
+        //extracting speed from our vector (length of vector)
         backRightSpeed = Math.sqrt((m1x * m1x) + (m1y * m1y));
         backLeftSpeed = Math.sqrt((m2x * m2x) + (m2y * m2y));
         frontRightSpeed = Math.sqrt((m3x * m3x) + (m3y * m3y));
         frontLeftSpeed = Math.sqrt((m4x * m4x) + (m4y * m4y));
 
-        //make sure that values are scaled correctly and are under 1
+        //make sure that speed values are scaled correctly and are under 1
         double max1 = Math.max(Math.abs(backLeftSpeed), Math.abs(backRightSpeed));
         double max2 = Math.max(max1, Math.abs(frontLeftSpeed));
         double max = Math.max(max2,Math.abs(frontRightSpeed));
@@ -52,7 +52,7 @@ public class swerveMaths {
             frontLeftSpeed/=Math.abs(max);
         }
 
-        //converting what the robot has to do into wheel specific values (angle)
+        //extracting angle from our vector (angle of vector face)
         backRightAngle = Math.atan2(m1y,m1x)*180 / Math.PI;
         backLeftAngle = Math.atan2(m2y,m2x)*180 / Math.PI;
         frontRightAngle = Math.atan2(m3y,m3x)*180 / Math.PI;

@@ -109,8 +109,94 @@ public class Godswerve extends LinearOpMode {
             double heading = angles.firstAngle*-1;
             heading+=135;
 
+            //testing in this opmode so i can watch values in telemetry
+            //define our math variables
+            double strafe1,forward1,m1x,m1y,m2x,m2y,m3x,m3y,m4x,m4y;
+
+            //define our output variables
+            double backRightSpeed,backLeftSpeed,backRightAngle,backLeftAngle,frontRightSpeed,frontLeftSpeed,frontRightAngle,frontLeftAngle;
+
+            double forward = gamepad1.left_stick_y;
+            double strafe = gamepad1.left_stick_x;
+            double rotate = gamepad1.right_stick_x;
+
+            //depending on the orientation of your imu and wheels, you may have to reverse these values
+            heading*=-1;
+            forward*=-1;
+
+            //field centric toggle
+
+            //rotate vectors by imu heading for field centric
+            strafe1=Math.cos(Math.toRadians(heading))*strafe-Math.sin(Math.toRadians(heading))*forward;
+            forward1=Math.sin(Math.toRadians(heading))*strafe+Math.cos(Math.toRadians(heading))*forward;
+
+            telemetry.addData("strafeb",strafe);
+            telemetry.addData("strafea",strafe1);
+            telemetry.addData("forwardb",forward);
+            telemetry.addData("forwarda",forward1);
+
+            //calculating the x and y vector components for each wheel
+            m1x = strafe1 - rotate * 1;
+            m2x = strafe1 - rotate * 1;
+            m3x = strafe1 - rotate * -1;
+            m4x = strafe1 - rotate * -1;
+
+            m1y = forward1 + rotate * -1;
+            m2y = forward1 + rotate * 1;
+            m3y = forward1 + rotate * 1;
+            m4y = forward1 + rotate * -1;
+
+            //converting what the robot has to do into wheel specific values (speed)
+            backRightSpeed = Math.sqrt((m1x * m1x) + (m1y * m1y));
+            backLeftSpeed = Math.sqrt((m2x * m2x) + (m2y * m2y));
+            frontRightSpeed = Math.sqrt((m3x * m3x) + (m3y * m3y));
+            frontLeftSpeed = Math.sqrt((m4x * m4x) + (m4y * m4y));
+
+            //make sure that values are scaled correctly and are under 1
+            double max1 = Math.max(Math.abs(backLeftSpeed), Math.abs(backRightSpeed));
+            double max2 = Math.max(max1, Math.abs(frontLeftSpeed));
+            double max = Math.max(max2,Math.abs(frontRightSpeed));
+            if(Math.abs(max)>1){
+                backRightSpeed/=Math.abs(max);
+                backLeftSpeed/=Math.abs(max);
+                frontRightSpeed/=Math.abs(max);
+                frontLeftSpeed/=Math.abs(max);
+            }
+
+            //converting what the robot has to do into wheel specific values (angle)
+            backRightAngle = Math.atan2(m1y,m1x)*180 / Math.PI;
+            backLeftAngle = Math.atan2(m2y,m2x)*180 / Math.PI;
+            frontRightAngle = Math.atan2(m3y,m3x)*180 / Math.PI;
+            frontLeftAngle = Math.atan2(m4y,m4x)*180/ Math.PI;
+
+            backRightSpeed*=-1;
+            backLeftSpeed*=-1;
+            frontLeftSpeed*=-1;
+            frontRightSpeed*=-1;
+
+            telemetry.addData("IMU",heading);
+
+            telemetry.addData("BLTreference",BLTreference);
+            telemetry.addData("BRTreference",BRTreference);
+            telemetry.addData("FLTreference",FLTreference);
+            telemetry.addData("FRTreference",FRTreference);
+
+            telemetry.addData("BLP",BLP);
+            telemetry.addData("BRP",BRP);
+            telemetry.addData("FLP",FLP);
+            telemetry.addData("FRP",FRP);
+
+            telemetry.addData("FRDpower",FRDpower);
+            telemetry.addData("FLDpower",FLDpower);
+            telemetry.addData("BRDpower",BRDpower);
+            telemetry.addData("BLDpower",BLDpower);
+            telemetry.update();
+
+            //put our outputs into an array
+            double[] output = {backRightSpeed,backLeftSpeed,frontRightSpeed,frontLeftSpeed,-backRightAngle,-backLeftAngle,-frontRightAngle,-frontLeftAngle};
+
             //Retrieve the angles and powers for all of our wheels from the swerve kinematics
-            double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
+            //double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
             BRDpower=output[0];
             BLDpower=output[1];
             FRDpower=output[2];
@@ -167,23 +253,6 @@ public class Godswerve extends LinearOpMode {
             FRT.setPower(FRTPID.PIDout(FRTreference,FRP));
             //FRD.setPower(FRDpower);
 
-            telemetry.addData("IMU",heading);
-
-            telemetry.addData("BLTreference",BLTreference);
-            telemetry.addData("BRTreference",BRTreference);
-            telemetry.addData("FLTreference",FLTreference);
-            telemetry.addData("FRTreference",FRTreference);
-
-            telemetry.addData("BLP",BLP);
-            telemetry.addData("BRP",BRP);
-            telemetry.addData("FLP",FLP);
-            telemetry.addData("FRP",FRP);
-
-            telemetry.addData("FRDpower",FRDpower);
-            telemetry.addData("FLDpower",FLDpower);
-            telemetry.addData("BRDpower",BRDpower);
-            telemetry.addData("BLDpower",BLDpower);
-            telemetry.update();
         }
     }
 }
