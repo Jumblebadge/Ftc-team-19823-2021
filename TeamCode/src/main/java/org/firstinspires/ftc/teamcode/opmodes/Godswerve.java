@@ -21,6 +21,7 @@ public class Godswerve extends LinearOpMode {
 
     //Define reference points
     public static double BLTreference = 0, BRTreference=0,FLTreference=0,FRTreference=0;
+    public static double BLTreference1 = 0, BRTreference1=0,FLTreference1=0,FRTreference1=0;
 
     //Timers for the PID loops
     ElapsedTime BLTtimer =  new ElapsedTime(); ElapsedTime FRTtimer =  new ElapsedTime(); ElapsedTime FLTtimer =  new ElapsedTime(); ElapsedTime BRTtimer =  new ElapsedTime();
@@ -51,6 +52,9 @@ public class Godswerve extends LinearOpMode {
         IMU = hardwareMap.get(BNO055IMU.class, "IMU");
         IMU.initialize(parameters);
         IMU.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+
+        angles   = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double headingfix = angles.firstAngle;
 
         //Initialize FTCDashboard telemetry
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -89,6 +93,7 @@ public class Godswerve extends LinearOpMode {
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
+        BLTreference = 0; BRTreference=0;FLTreference=0;FRTreference=0;
 
         waitForStart();
         while (opModeIsActive()) {
@@ -107,74 +112,97 @@ public class Godswerve extends LinearOpMode {
             //Update heading of robot
             angles   = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = angles.firstAngle*-1;
-            heading+=135;
-
-            //testing in this opmode so i can watch values in telemetry
-            //define our math variables
-            double strafe1,forward1,m1x,m1y,m2x,m2y,m3x,m3y,m4x,m4y;
-
-            //define our output variables
-            double backRightSpeed,backLeftSpeed,backRightAngle,backLeftAngle,frontRightSpeed,frontLeftSpeed,frontRightAngle,frontLeftAngle;
-
-            double forward = gamepad1.left_stick_y;
-            double strafe = gamepad1.left_stick_x;
-            double rotate = gamepad1.right_stick_x;
-
-            //depending on the orientation of your imu and wheels, you may have to reverse these values
-            heading*=-1;
-            forward*=-1;
-
-            //field centric toggle
-
-            //rotate vectors by imu heading for field centric
-            strafe1=Math.cos(Math.toRadians(heading))*strafe-Math.sin(Math.toRadians(heading))*forward;
-            forward1=Math.sin(Math.toRadians(heading))*strafe+Math.cos(Math.toRadians(heading))*forward;
-
-            telemetry.addData("strafeb",strafe);
-            telemetry.addData("strafea",strafe1);
-            telemetry.addData("forwardb",forward);
-            telemetry.addData("forwarda",forward1);
-
-            //calculating the x and y vector components for each wheel
-            m1x = strafe1 - rotate * 1;
-            m2x = strafe1 - rotate * 1;
-            m3x = strafe1 - rotate * -1;
-            m4x = strafe1 - rotate * -1;
-
-            m1y = forward1 + rotate * -1;
-            m2y = forward1 + rotate * 1;
-            m3y = forward1 + rotate * 1;
-            m4y = forward1 + rotate * -1;
-
-            //converting what the robot has to do into wheel specific values (speed)
-            backRightSpeed = Math.sqrt((m1x * m1x) + (m1y * m1y));
-            backLeftSpeed = Math.sqrt((m2x * m2x) + (m2y * m2y));
-            frontRightSpeed = Math.sqrt((m3x * m3x) + (m3y * m3y));
-            frontLeftSpeed = Math.sqrt((m4x * m4x) + (m4y * m4y));
-
-            //make sure that values are scaled correctly and are under 1
-            double max1 = Math.max(Math.abs(backLeftSpeed), Math.abs(backRightSpeed));
-            double max2 = Math.max(max1, Math.abs(frontLeftSpeed));
-            double max = Math.max(max2,Math.abs(frontRightSpeed));
-            if(Math.abs(max)>1){
-                backRightSpeed/=Math.abs(max);
-                backLeftSpeed/=Math.abs(max);
-                frontRightSpeed/=Math.abs(max);
-                frontLeftSpeed/=Math.abs(max);
-            }
-
-            //converting what the robot has to do into wheel specific values (angle)
-            backRightAngle = Math.atan2(m1y,m1x)*180 / Math.PI;
-            backLeftAngle = Math.atan2(m2y,m2x)*180 / Math.PI;
-            frontRightAngle = Math.atan2(m3y,m3x)*180 / Math.PI;
-            frontLeftAngle = Math.atan2(m4y,m4x)*180/ Math.PI;
-
-            backRightSpeed*=-1;
-            backLeftSpeed*=-1;
-            frontLeftSpeed*=-1;
-            frontRightSpeed*=-1;
 
             telemetry.addData("IMU",heading);
+
+            //Anglewrap our positions and references for each wheel
+            BLP=mathsOperations.angleWrap(BLP);
+            BRP=mathsOperations.angleWrap(BRP);
+            FLP=mathsOperations.angleWrap(FLP);
+            FRP=mathsOperations.angleWrap(FRP);
+
+            BLTreference=mathsOperations.angleWrap(BLTreference);
+            BRTreference=mathsOperations.angleWrap(BRTreference);
+            FLTreference=mathsOperations.angleWrap(FLTreference);
+            FRTreference=mathsOperations.angleWrap(FRTreference);
+
+            //put our outputs into an array
+
+            //Retrieve the angles and powers for all of our wheels from the swerve kinematics
+            double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
+            BRDpower=output[0];
+            BLDpower=output[1];
+            FRDpower=output[2];
+            FLDpower=output[3];
+
+            while (gamepad1.left_stick_y!=0||gamepad1.left_stick_x!=0||gamepad1.right_stick_x!=0&&opModeIsActive()){
+                BRTreference1=output[4];
+                BLTreference1=output[5];
+                FRTreference1=output[6];
+                FLTreference1=output[7];
+                BRTreference=BRTreference1;
+                BLTreference=BLTreference1;
+                FRTreference=FRTreference1;
+                FLTreference=FLTreference1;
+                telemetry.addData("in","yes");
+                break;
+            }
+            while(gamepad1.left_stick_y==0&gamepad1.left_stick_x==0&gamepad1.right_stick_x==0&&opModeIsActive()){
+
+                BRTreference=BRTreference1;
+                BLTreference=BLTreference1;
+                FRTreference=FRTreference1;
+                FLTreference=FLTreference1;
+
+                telemetry.addData("in","na");
+                break;
+            }
+
+            BLTreference=mathsOperations.angleWrap(BLTreference);
+            BRTreference=mathsOperations.angleWrap(BRTreference);
+            FLTreference=mathsOperations.angleWrap(FLTreference);
+            FRTreference=mathsOperations.angleWrap(FRTreference);
+
+            //Subtract our tuning values to account for any encoder drift
+            FRTreference -= FRPC;
+            FLTreference -= FLPC;
+            BRTreference -= BRPC;
+            BLTreference -= BLPC;
+
+            BLTreference=mathsOperations.angleWrap(BLTreference);
+            BRTreference=mathsOperations.angleWrap(BRTreference);
+            FLTreference=mathsOperations.angleWrap(FLTreference);
+            FRTreference=mathsOperations.angleWrap(FRTreference);
+
+            //Run our powers, references, and positions through efficient turning code for each wheel and get the new values
+            double[] BLTvalues= mathsOperations.efficientTurn(BLTreference,BLP,BLDpower);
+            BLTreference=BLTvalues[0];
+            BLDpower=BLTvalues[1];
+
+            double[] BRTvalues = mathsOperations.efficientTurn(BRTreference,BRP,BRDpower);
+            BRTreference=BRTvalues[0];
+            BRDpower=BRTvalues[1];
+
+            double[] FLTvalues = mathsOperations.efficientTurn(FLTreference,FLP,FLDpower);
+            FLTreference=FLTvalues[0];
+            FLDpower=FLTvalues[1];
+
+            double[] FRTvalues = mathsOperations.efficientTurn(FRTreference,FRP,FRDpower);
+            FRTreference=FRTvalues[0];
+            FRDpower=FRTvalues[1];
+
+            //Use our Controlloopmath class to find the power needed to go into our CRservo to achieve our desired target
+            BLT.setPower(BLTPID.PIDout(BLTreference,BLP));
+            BLD.setPower(BLDpower);
+
+            BRT.setPower(BRTPID.PIDout(BRTreference,BRP));
+            BRD.setPower(BRDpower);
+
+            FLT.setPower(FLTPID.PIDout(FLTreference,FLP));
+            FLD.setPower(FLDpower);
+
+            FRT.setPower(FRTPID.PIDout(FRTreference,FRP));
+            FRD.setPower(FRDpower);
 
             telemetry.addData("BLTreference",BLTreference);
             telemetry.addData("BRTreference",BRTreference);
@@ -191,67 +219,6 @@ public class Godswerve extends LinearOpMode {
             telemetry.addData("BRDpower",BRDpower);
             telemetry.addData("BLDpower",BLDpower);
             telemetry.update();
-
-            //put our outputs into an array
-            double[] output = {backRightSpeed,backLeftSpeed,frontRightSpeed,frontLeftSpeed,-backRightAngle,-backLeftAngle,-frontRightAngle,-frontLeftAngle};
-
-            //Retrieve the angles and powers for all of our wheels from the swerve kinematics
-            //double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
-            BRDpower=output[0];
-            BLDpower=output[1];
-            FRDpower=output[2];
-            FLDpower=output[3];
-            BRTreference=output[4];
-            BLTreference=output[5];
-            FRTreference=output[6];
-            FLTreference=output[7];
-
-            //Subtract our tuning values to account for any encoder drift
-            FRTreference -= FRPC;
-            FLTreference -= FLPC;
-            BRTreference -= BRPC;
-            BLTreference -= BLPC;
-
-            //Anglewrap our positions and references for each wheel
-            BLP=mathsOperations.angleWrap(BLP);
-            BRP=mathsOperations.angleWrap(BRP);
-            FLP=mathsOperations.angleWrap(FLP);
-            FRP=mathsOperations.angleWrap(FRP);
-
-            BLTreference=mathsOperations.angleWrap(BLTreference);
-            BRTreference=mathsOperations.angleWrap(BRTreference);
-            FLTreference=mathsOperations.angleWrap(FLTreference);
-            FRTreference=mathsOperations.angleWrap(FRTreference);
-
-            //Run our powers, references, and positions through efficient turning code for each wheel and get the new values
-            double[] BLTvalues= mathsOperations.efficientTurn(BLTreference,BLP,BLDpower);
-            //BLTreference=BLTvalues[0];
-            //BLDpower=BLTvalues[1];
-
-            double[] BRTvalues = mathsOperations.efficientTurn(BRTreference,BRP,BRDpower);
-            //BRTreference=BRTvalues[0];
-            //BRDpower=BRTvalues[1];
-
-            double[] FLTvalues = mathsOperations.efficientTurn(FLTreference,FLP,FLDpower);
-            //FLTreference=FLTvalues[0];
-            //FLDpower=FLTvalues[1];
-
-            double[] FRTvalues = mathsOperations.efficientTurn(FRTreference,FRP,FRDpower);
-            //FRTreference=FRTvalues[0];
-            //FRDpower=FRTvalues[1];
-
-            //Use our Controlloopmath class to find the power needed to go into our CRservo to achieve our desired target
-            BLT.setPower(BLTPID.PIDout(BLTreference,BLP));
-            //BLD.setPower(BLDpower);
-
-            BRT.setPower(BRTPID.PIDout(BRTreference,BRP));
-            //BRD.setPower(BRDpower);
-
-            FLT.setPower(FLTPID.PIDout(FLTreference,FLP));
-            //FLD.setPower(FLDpower);
-
-            FRT.setPower(FRTPID.PIDout(FRTreference,FRP));
-            //FRD.setPower(FRDpower);
 
         }
     }
