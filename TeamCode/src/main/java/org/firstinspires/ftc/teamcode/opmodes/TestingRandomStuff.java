@@ -31,41 +31,43 @@ public class TestingRandomStuff extends LinearOpMode {
 
 
     FtcDashboard dashboard;
-    private DcMotorEx OTE = null;
-    private Servo OTD = null;
-
-
-    BNO055IMU IMU;
-
-
+    private CRServo INS = null;
+    private Servo INFL = null, DROP = null, OTD = null;
+    private DcMotorEx INE = null, OTE = null;
 
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        INS = hardwareMap.get(CRServo.class, "INS");
+        INFL = hardwareMap.get(Servo.class, "INFL");
+        //INE = hardwareMap.get(DcMotorEx.class,"INE");
 
+        //DROP = hardwareMap.get(Servo.class, "DROP");
+
+        OTD = hardwareMap.get(Servo.class, "OTD");
         OTE = hardwareMap.get(DcMotorEx.class,"OTE");
-        IMU = hardwareMap.get(BNO055IMU.class, "IMU");
-        OTD = hardwareMap.get(Servo.class,"OTD");
-
-        IMU.initialize(parameters);
-        IMU.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
+        INS.setDirection(DcMotorSimple.Direction.REVERSE);
 
         dashboard = FtcDashboard.getInstance();
-
 
         waitForStart();
 
         while (opModeIsActive()) {
-            OTE.setPower(gamepad1.right_stick_y);
+
+            double INFP = 0;
+            if (gamepad2.a){
+                INFP = 0.975;
+            }
+            if (!gamepad2.a) {
+                INFP = 0.2;
+            }
+            if (gamepad2.left_bumper) {
+                INFP = 0.1;}
+            INFL.setPosition(INFP);
+            //DROP.setPosition(DROPP);
+
             double OTDP=0;
             if (gamepad2.y){
                 OTDP = 1;
@@ -74,6 +76,32 @@ public class TestingRandomStuff extends LinearOpMode {
                 OTDP = 0.5;
             }
             OTD.setPosition(OTDP);
+            //depositing pos = 1
+            //resting pos = 0.5
+            //init pos = 0.1
+
+            double OTEV;
+            OTEV = gamepad2.right_stick_y;
+            OTE.setPower(OTEV);
+
+            double INEV;
+            INEV = gamepad2.left_stick_y;
+            //INE.setPower(INEV);
+
+            if(INFP>0.2){
+                INS.setPower(1);
+            }
+            else if(gamepad2.right_bumper){
+                INS.setPower(1);
+            }
+            else if(gamepad2.b){
+                INS.setPower(-0.25);
+
+            }
+            else{
+                INS.setPower(0);}
+            OTD.setPosition(OTDP);
+
             String color = "#0f2259";
             String color1 = "#b28c00";
             telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
@@ -96,12 +124,5 @@ public class TestingRandomStuff extends LinearOpMode {
         }
 
     }
-    private void ANGELWRP(double angle){
-        if(angle <= -180) {
-            angle += 360;
-        }
-        if(angle > 180) {
-            angle -= 360;
-        }
-    }
+
 }

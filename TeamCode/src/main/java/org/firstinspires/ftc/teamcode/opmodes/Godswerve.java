@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 //Import EVERYTHING we need
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;import com.acmerobotics.dashboard.config.Config;import com.qualcomm.robotcore.hardware.AnalogInput;import com.acmerobotics.dashboard.FtcDashboard;import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;import com.qualcomm.hardware.bosch.BNO055IMU;import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;import com.qualcomm.robotcore.hardware.DcMotorEx;import com.qualcomm.robotcore.hardware.CRServo;import com.qualcomm.robotcore.util.ElapsedTime;import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;import org.firstinspires.ftc.robotcore.external.navigation.Orientation;import org.firstinspires.ftc.teamcode.maths.Controlloopmath;import org.firstinspires.ftc.teamcode.maths.mathsOperations;import org.firstinspires.ftc.robotcore.external.navigation.Position;import org.firstinspires.ftc.teamcode.maths.swerveMaths;import java.util.List;import org.firstinspires.ftc.robotcore.external.navigation.Velocity;import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;import com.acmerobotics.dashboard.config.Config;import com.qualcomm.robotcore.hardware.AnalogInput;import com.acmerobotics.dashboard.FtcDashboard;import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;import com.qualcomm.hardware.bosch.BNO055IMU;import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;import com.qualcomm.robotcore.hardware.DcMotorEx;import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;import org.firstinspires.ftc.robotcore.external.navigation.Orientation;import org.firstinspires.ftc.teamcode.maths.Controlloopmath;import org.firstinspires.ftc.teamcode.maths.mathsOperations;import org.firstinspires.ftc.robotcore.external.navigation.Position;import org.firstinspires.ftc.teamcode.maths.swerveMaths;import java.util.List;import org.firstinspires.ftc.robotcore.external.navigation.Velocity;import com.qualcomm.hardware.lynx.LynxModule;
 
 @Config
 @TeleOp(name="Godswerve", group="Linear Opmode")
@@ -13,6 +16,10 @@ public class Godswerve extends LinearOpMode {
     private CRServo BLT = null, BRT = null, FLT = null, FRT = null;
 
     private DcMotorEx BLD = null, BRD = null, FLD = null, FRD = null;
+
+    private CRServo INS = null;
+    private Servo INFL = null, OTD = null;//DROP = null;
+    private DcMotorEx OTE = null; //INE = null;
 
     List<LynxModule> allHubs = null;
 
@@ -75,6 +82,21 @@ public class Godswerve extends LinearOpMode {
         FLT = hardwareMap.get(CRServo.class, "FLT");
         FRT = hardwareMap.get(CRServo.class, "FRT");
 
+        INS = hardwareMap.get(CRServo.class, "INS");
+        INFL = hardwareMap.get(Servo.class, "INFL");
+        //INE = hardwareMap.get(DcMotorEx.class,"INE");
+
+        //DROP = hardwareMap.get(Servo.class, "DROP");
+
+        OTD = hardwareMap.get(Servo.class, "OTD");
+        OTE = hardwareMap.get(DcMotorEx.class,"OTE");
+
+        INS.setDirection(DcMotorSimple.Direction.REVERSE);
+        BLD.setDirection(DcMotorEx.Direction.REVERSE);
+        BRD.setDirection(DcMotorEx.Direction.REVERSE);
+        FLD.setDirection(DcMotorEx.Direction.REVERSE);
+        FRD.setDirection(DcMotorEx.Direction.REVERSE);
+
         //Bulk sensor reads
         allHubs = hardwareMap.getAll(LynxModule.class);
 
@@ -113,8 +135,6 @@ public class Godswerve extends LinearOpMode {
             angles   = IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             double heading = angles.firstAngle*-1;
 
-            telemetry.addData("IMU",heading);
-
             //Anglewrap our positions and references for each wheel
             BLP=mathsOperations.angleWrap(BLP);
             BRP=mathsOperations.angleWrap(BRP);
@@ -129,7 +149,7 @@ public class Godswerve extends LinearOpMode {
             //put our outputs into an array
 
             //Retrieve the angles and powers for all of our wheels from the swerve kinematics
-            double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x,heading,true);
+            double[] output = swavemath.Math(gamepad1.left_stick_y,gamepad1.left_stick_x,-gamepad1.right_stick_x,heading,true);
             BRDpower=output[0];
             BLDpower=output[1];
             FRDpower=output[2];
@@ -144,7 +164,6 @@ public class Godswerve extends LinearOpMode {
                 BLTreference=BLTreference1;
                 FRTreference=FRTreference1;
                 FLTreference=FLTreference1;
-                telemetry.addData("in","yes");
                 break;
             }
             while(gamepad1.left_stick_y==0&gamepad1.left_stick_x==0&gamepad1.right_stick_x==0&&opModeIsActive()){
@@ -153,8 +172,6 @@ public class Godswerve extends LinearOpMode {
                 BLTreference=BLTreference1;
                 FRTreference=FRTreference1;
                 FLTreference=FLTreference1;
-
-                telemetry.addData("in","na");
                 break;
             }
 
@@ -191,7 +208,7 @@ public class Godswerve extends LinearOpMode {
             FRTreference=FRTvalues[0];
             FRDpower=FRTvalues[1];
 
-            //Use our Controlloopmath class to find the power needed to go into our CRservo to achieve our desired target
+            //Use our pid to find the power needed to go into our CRservo to achieve our desired target
             BLT.setPower(BLTPID.PIDout(BLTreference,BLP));
             BLD.setPower(BLDpower);
 
@@ -204,21 +221,50 @@ public class Godswerve extends LinearOpMode {
             FRT.setPower(FRTPID.PIDout(FRTreference,FRP));
             FRD.setPower(FRDpower);
 
-            telemetry.addData("BLTreference",BLTreference);
-            telemetry.addData("BRTreference",BRTreference);
-            telemetry.addData("FLTreference",FLTreference);
-            telemetry.addData("FRTreference",FRTreference);
+            double INFP = 0;
+            if (gamepad2.a){
+                INFP = 0.975;
+            }
+            if (!gamepad2.a) {
+                INFP = 0.2;
+            }
+            if (gamepad2.left_bumper) {
+                INFP = 0.1;}
+            INFL.setPosition(INFP);
+            //DROP.setPosition(DROPP);
 
-            telemetry.addData("BLP",BLP);
-            telemetry.addData("BRP",BRP);
-            telemetry.addData("FLP",FLP);
-            telemetry.addData("FRP",FRP);
+            double OTDP=0;
+            if (gamepad2.y){
+                OTDP = 1;
+            }
+            if (!gamepad2.y){
+                OTDP = 0.5;
+            }
+            OTD.setPosition(OTDP);
+            //depositing pos = 1
+            //resting pos = 0.5
+            //init pos = 0.1
 
-            telemetry.addData("FRDpower",FRDpower);
-            telemetry.addData("FLDpower",FLDpower);
-            telemetry.addData("BRDpower",BRDpower);
-            telemetry.addData("BLDpower",BLDpower);
-            telemetry.update();
+            double OTEV;
+            OTEV = gamepad2.right_stick_y;
+            OTE.setPower(OTEV);
+
+            double INEV;
+            INEV = gamepad2.left_stick_y;
+            //INE.setPower(INEV);
+
+            if(INFP>0.2){
+                INS.setPower(1);
+            }
+            else if(gamepad2.right_bumper){
+                INS.setPower(1);
+            }
+            else if(gamepad2.b){
+                INS.setPower(-0.25);
+
+            }
+            else{
+                INS.setPower(0);}
 
         }
     }
