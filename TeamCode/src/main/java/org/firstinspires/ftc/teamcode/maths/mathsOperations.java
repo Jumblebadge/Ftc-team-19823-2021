@@ -28,7 +28,11 @@ public class mathsOperations {
             error = reference-state;
         }
 
-        double[] output = {reference,power};
-        return output;
+        return new double[]{reference,power};
+    }
+    public static double[] diffyConvert(double rotate, double translate){
+        double top = (rotate + translate) / 2.0;
+        double bottom = (rotate - translate) / 2.0;
+        return new double[]{top,bottom};
     }
 }

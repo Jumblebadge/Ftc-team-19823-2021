@@ -8,7 +8,6 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -32,7 +31,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 public class Decentswerve extends LinearOpMode {
 
 
-    private AnalogInput BLE = null;
     private AnalogInput BRE = null;
     private AnalogInput FLE = null;
     private AnalogInput FRE = null;
@@ -106,8 +104,6 @@ public class Decentswerve extends LinearOpMode {
     public static double BRPC = -30;
     public static double FLPC = -25;
 
-    double atan = 0;
-
     BNO055IMU IMU;
     Orientation angles;
 
@@ -132,8 +128,7 @@ public class Decentswerve extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
 
-
-        BLE = hardwareMap.get(AnalogInput.class, "BLE");
+        AnalogInput BLE = hardwareMap.get(AnalogInput.class, "BLE");
         BRE = hardwareMap.get(AnalogInput.class, "BRE");
         FLE = hardwareMap.get(AnalogInput.class, "FLE");
         FRE = hardwareMap.get(AnalogInput.class, "FRE");
