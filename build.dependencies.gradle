@@ -11,6 +11,7 @@ repositories {
 }
 
 dependencies {
+<<<<<<< HEAD
     implementation 'org.firstinspires.ftc:Inspection:7.1.0'
     implementation 'org.firstinspires.ftc:Blocks:7.1.0'
     implementation 'org.firstinspires.ftc:Tfod:7.1.0'
@@ -25,5 +26,18 @@ dependencies {
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.3'
     implementation 'org.openftc:easyopencv:1.5.1'
     //implementation 'com.github.Eeshwar-Krishnan:PhotonFTC:dev-SNAPSHOT'
+=======
+    implementation 'org.firstinspires.ftc:Inspection:8.0.0'
+    implementation 'org.firstinspires.ftc:Blocks:8.0.0'
+    implementation 'org.firstinspires.ftc:Tfod:8.0.0'
+    implementation 'org.firstinspires.ftc:RobotCore:8.0.0'
+    implementation 'org.firstinspires.ftc:RobotServer:8.0.0'
+    implementation 'org.firstinspires.ftc:OnBotJava:8.0.0'
+    implementation 'org.firstinspires.ftc:Hardware:8.0.0'
+    implementation 'org.firstinspires.ftc:FtcCommon:8.0.0'
+    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.2.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'org.firstinspires.ftc:gameAssets-PowerPlay:1.0.0'
+>>>>>>> 2390680ce6a1a918b8855dc429555f57b38796e0
 }
 
